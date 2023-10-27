@@ -12,7 +12,7 @@ import java.util.Map;
 @Service
 public class DiffusionService {
     @Value("${diffusion-api-key}")
-    private String diffusion_api_key;
+    private String key;
 
     public ResponseEntity<byte[]> getDiffusion(String prompt) {
         RestTemplate restTemplate = new RestTemplate();
@@ -20,7 +20,7 @@ public class DiffusionService {
 
         // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + diffusion_api_key);
+        headers.set("Authorization", "Bearer " + key);
 
         // JSON 형식의 요청 본문 설정
         Map<String, String> body = new HashMap<>();
