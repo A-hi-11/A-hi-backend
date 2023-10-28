@@ -1,0 +1,22 @@
+package com.example.Ahi.domain;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Data
+public class ConfigInfo {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long Config_info_id;
+    @OneToOne
+    @JoinColumn(name="prompt_id")
+    private Prompt prompt_id;
+    private String model_name;
+    private float temperature;
+    private Long maximum_length;
+    private String stop_sequence;
+    private float top_p;
+    private float frequency_penalty;
+    private float presence_penalty;
+}
