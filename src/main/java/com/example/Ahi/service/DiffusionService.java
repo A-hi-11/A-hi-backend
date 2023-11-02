@@ -26,6 +26,7 @@ public class DiffusionService {
         String argument = ",realistic,best,4k";
         Map<String, String> body = new HashMap<>();
         body.put("inputs", prompt + argument);
+
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
 
         // POST 요청 보내기
