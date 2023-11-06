@@ -20,5 +20,4 @@ public class ChatExample {
     private Prompt prompt_id;
     private String message;
     private boolean isQuestion;
-    private Long chat_order;
 }

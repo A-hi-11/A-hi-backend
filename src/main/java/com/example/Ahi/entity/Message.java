@@ -10,13 +10,11 @@ import lombok.Setter;
 public class Message {
     private String message;
     private boolean isQuestion;
-    private Long chat_order;
 
     public ChatExample toChatExample(Prompt prompt){
         return ChatExample.builder()
                 .message(message)
                 .isQuestion(isQuestion)
-                .chat_order(chat_order)
                 .prompt_id(prompt)
                 .build();
     }
