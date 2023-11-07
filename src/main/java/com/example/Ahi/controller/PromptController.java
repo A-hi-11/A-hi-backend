@@ -13,7 +13,6 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("prompt")
 public class PromptController {
-    @Autowired
     private final PromptService promptService;
     public PromptController(PromptService promptService){
         this.promptService = promptService;

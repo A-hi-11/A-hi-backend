@@ -22,7 +22,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-	implementation group: 'org.json', name: 'json', version: '20160810'
+	implementation group: 'org.json', name: 'json', version: '20230227'
 
 }
 

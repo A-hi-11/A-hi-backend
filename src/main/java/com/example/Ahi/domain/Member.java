@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 public class Member {
     @Id
     private String member_id;
-    private String email;
     private String password;
     private String nickname;
     private LocalDateTime last_update_time;
