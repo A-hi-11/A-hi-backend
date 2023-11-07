@@ -1,4 +1,4 @@
-package com.example.Ahi.dto;
+package com.example.Ahi.dto.responseDto;
 
 import com.example.Ahi.entity.Message;
 import lombok.*;

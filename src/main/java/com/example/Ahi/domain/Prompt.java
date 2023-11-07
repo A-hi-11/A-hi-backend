@@ -1,8 +1,8 @@
 package com.example.Ahi.domain;
 
 
-import com.example.Ahi.dto.PromptListResponseDto;
-import com.example.Ahi.dto.PromptResponseDto;
+import com.example.Ahi.dto.requestDto.PromptListResponseDto;
+import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

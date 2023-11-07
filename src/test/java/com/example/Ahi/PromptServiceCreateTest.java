@@ -4,7 +4,7 @@ import com.example.Ahi.domain.ChatExample;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.domain.Tags;
-import com.example.Ahi.dto.PromptRequestDto;
+import com.example.Ahi.dto.responseDto.PromptRequestDto;
 import com.example.Ahi.entity.Message;
 import com.example.Ahi.repository.ChatExampleRepository;
 import com.example.Ahi.repository.PromptRepository;

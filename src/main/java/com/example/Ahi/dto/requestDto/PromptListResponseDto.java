@@ -1,4 +1,4 @@
-package com.example.Ahi.dto;
+package com.example.Ahi.dto.requestDto;
 
 import lombok.*;
 

@@ -1,9 +1,8 @@
 package com.example.Ahi.controller;
 
-import com.example.Ahi.domain.Prompt;
-import com.example.Ahi.dto.PromptRequestDto;
-import com.example.Ahi.dto.PromptListResponseDto;
-import com.example.Ahi.dto.PromptResponseDto;
+import com.example.Ahi.dto.responseDto.PromptRequestDto;
+import com.example.Ahi.dto.requestDto.PromptListResponseDto;
+import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import com.example.Ahi.service.PromptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

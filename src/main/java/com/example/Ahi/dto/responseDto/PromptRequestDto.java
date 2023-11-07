@@ -1,4 +1,4 @@
-package com.example.Ahi.dto;
+package com.example.Ahi.dto.responseDto;
 
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
