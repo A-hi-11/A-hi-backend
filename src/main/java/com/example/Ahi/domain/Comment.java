@@ -18,5 +18,5 @@ public class Comment {
     @JoinColumn(name="member_id")
     private Member member_id;
     private String content;
-    private LocalDateTime Create_id;
+    private LocalDateTime Create_time;
 }
