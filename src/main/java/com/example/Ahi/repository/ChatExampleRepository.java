@@ -1,7 +1,11 @@
 package com.example.Ahi.repository;
 
 import com.example.Ahi.domain.ChatExample;
-import org.springframework.data.repository.CrudRepository;
+import com.example.Ahi.domain.Prompt;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ChatExampleRepository extends CrudRepository<ChatExample, Long> {
+import java.util.List;
+
+public interface ChatExampleRepository extends JpaRepository<ChatExample, Long> {
+    List<ChatExample> findByPrompt(Prompt prompt);
 }

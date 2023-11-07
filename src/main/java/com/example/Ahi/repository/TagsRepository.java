@@ -1,7 +1,12 @@
 package com.example.Ahi.repository;
 
+import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.domain.Tags;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TagsRepository extends CrudRepository<Tags, Long> {
+import java.util.List;
+
+public interface TagsRepository extends JpaRepository<Tags, Long> {
+    List<Tags> findByPrompt(Prompt prompt);
+
 }
