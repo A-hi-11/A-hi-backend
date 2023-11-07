@@ -1,13 +1,15 @@
 package com.example.Ahi.controller;
 
+import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.PromptRequestDto;
+import com.example.Ahi.dto.PromptListResponseDto;
+import com.example.Ahi.dto.PromptResponseDto;
 import com.example.Ahi.service.PromptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("prompt")
@@ -22,4 +24,16 @@ public class PromptController {
         return ResponseEntity.ok(promptService.create(prompt));
     }
 
+    @GetMapping("/view")
+    public ResponseEntity<ArrayList<PromptListResponseDto>> getPromptList(
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String search) {
+        ArrayList<PromptListResponseDto> promptList = promptService.getPromptList(sort, search);
+        return ResponseEntity.ok(promptList);
+    }
+
+    @GetMapping("/view/{id}")
+    public ResponseEntity<PromptResponseDto> getPrompt(@PathVariable Long id){
+        return ResponseEntity.ok(promptService.getPrompt(id));
+    }
 }

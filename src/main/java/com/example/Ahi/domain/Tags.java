@@ -11,6 +11,6 @@ public class Tags {
     private Long Tag_id;
     @ManyToOne
     @JoinColumn(name="prompt_id")
-    private Prompt prompt_id;
+    private Prompt prompt;
     private String content;
 }

@@ -16,4 +16,11 @@ public class Member {
     private String nickname;
     private LocalDateTime last_update_time;
     private String profile_image;
+
+    public Member(){
+
+    }
+    public Member(String member_id){
+        this.member_id = member_id;
+    }
 }

@@ -1,6 +1,8 @@
 package com.example.Ahi.domain;
 
 
+import com.example.Ahi.dto.PromptListResponseDto;
+import com.example.Ahi.dto.PromptResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,4 +33,32 @@ public class Prompt {
     private String welcome_message;
     private LocalDateTime create_time;
     private LocalDateTime update_time;
+
+    public PromptListResponseDto toPromptListResponseDto(){
+        return PromptListResponseDto.builder()
+                .member_id(member_id.getMember_id())
+                .title(title)
+                .description(description)
+                .mediaType(mediaType)
+                .category(category)
+                .create_time(create_time)
+                .update_time(update_time)
+                .build();
+    }
+
+    public PromptResponseDto toPromptResponseDto(){
+        return PromptResponseDto.builder()
+                .title(title)
+                .description(description)
+                .mediaType(mediaType)
+                .category(category)
+                .permission(permission)
+                .update_time(update_time)
+                .create_time(create_time)
+                .prompt_id(prompt_id)
+                .content(content)
+                .member_id(member_id.getMember_id())
+                .welcome_message(welcome_message)
+                .build();
+    }
 }

@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class PromptServiceTest {
+public class PromptServiceCreateTest {
     @Autowired
     private PromptService promptService;
 
@@ -50,12 +50,13 @@ public class PromptServiceTest {
         // Then
         assertEquals("create successfully!", result);
         verify(promptRepository, times(1)).save(any(Prompt.class));
-        verify(chatExampleRepository, times(promptRequestDto.getExample().size())).save(any(ChatExample.class));
+        verify(chatExampleRepository, times(promptRequestDto.getExample().get(0).size()
+        + promptRequestDto.getExample().get(1).size())).save(any(ChatExample.class));
         verify(tagsRepository, times(promptRequestDto.getTags().size())).save(any(Tags.class));
     }
 
     private static PromptRequestDto getPromptRequestDto() {
-        Member member = new Member();
+        Member member = new Member("test");
         member.setEmail("asdf");
         member.setPassword("asdfasdf");
         member.setNickname("test");
@@ -82,13 +83,11 @@ public class PromptServiceTest {
         // Message 객체 생성
         Message message1 = new Message();
         message1.setMessage("Hello");
-        message1.setQuestion(false);
-        message1.setChat_order(1L);
+        message1.setIs_question(false);
 
         Message message2 = new Message();
         message2.setMessage("How are you?");
-        message2.setQuestion(true);
-        message2.setChat_order(2L);
+        message2.setIs_question(true);
 
 // ArrayList<Message> 생성
         ArrayList<Message> messageList1 = new ArrayList<>();
@@ -98,8 +97,7 @@ public class PromptServiceTest {
 // 또 다른 Message 객체 생성
         Message message3 = new Message();
         message3.setMessage("Goodbye");
-        message3.setQuestion(false);
-        message3.setChat_order(3L);
+        message3.setIs_question(false);
 
 // 또 다른 ArrayList<Message> 생성
         ArrayList<Message> messageList2 = new ArrayList<>();
