@@ -1,6 +1,7 @@
 package com.example.Ahi.controller;
 
 import com.example.Ahi.dto.requestDto.CommentRequest;
+import com.example.Ahi.dto.responseDto.CommentListResponse;
 import com.example.Ahi.dto.responseDto.CommentResponse;
 import com.example.Ahi.service.CommentService;
 import com.example.Ahi.service.PromptService;
@@ -21,6 +22,14 @@ public class CommentController {
                                          @RequestBody CommentRequest request){
 
         CommentResponse response = commentService.create_comment(id, request.getComment());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("{comment_id}")
+    public ResponseEntity delete_comment(@PathVariable("comment_id")Long id){
+
+
+        CommentResponse response = commentService.delete_comment(id);
         return ResponseEntity.ok().body(response);
     }
 
