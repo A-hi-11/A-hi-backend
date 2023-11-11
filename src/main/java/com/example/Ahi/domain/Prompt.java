@@ -22,7 +22,7 @@ public class Prompt {
     private Long prompt_id;
     @ManyToOne
     @JoinColumn(name="member_id")
-    private Member member_id;
+    private Member member;
     private String title;
     private String description;
     @Column(length = 10000)
@@ -36,7 +36,7 @@ public class Prompt {
 
     public PromptListResponseDto toPromptListResponseDto(){
         return PromptListResponseDto.builder()
-                .member_id(member_id.getMember_id())
+                .member_id(member.getMember_id())
                 .title(title)
                 .description(description)
                 .mediaType(mediaType)
@@ -57,7 +57,7 @@ public class Prompt {
                 .create_time(create_time)
                 .prompt_id(prompt_id)
                 .content(content)
-                .member_id(member_id.getMember_id())
+                .member_id(member.getMember_id())
                 .welcome_message(welcome_message)
                 .build();
     }

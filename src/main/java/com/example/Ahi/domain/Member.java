@@ -19,7 +19,4 @@ public class Member {
     public Member(){
 
     }
-    public Member(String member_id){
-        this.member_id = member_id;
-    }
 }

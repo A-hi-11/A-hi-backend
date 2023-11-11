@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface TagsRepository extends JpaRepository<Tags, Long> {
     List<Tags> findByPrompt(Prompt prompt);
-
+    void deleteByPrompt(Prompt prompt);
 }
