@@ -16,7 +16,7 @@ public class DiffusionController {
     private DiffusionService diffusionService;
 
     @PostMapping("/diffusion")
-    public ResponseEntity<byte[]> getDiffusion(@RequestBody String prompt) {
-        return diffusionService.getDiffusion(prompt);
+    public ResponseEntity<String> getDiffusion(@RequestBody String prompt) {
+        return ResponseEntity.ok(diffusionService.getDiffusion(prompt));
     }
 }
