@@ -1,10 +1,9 @@
 package com.example.Ahi.controller;
 
-import com.example.Ahi.dto.responseDto.PromptRequestDto;
+import com.example.Ahi.dto.requestDto.PromptRequestDto;
 import com.example.Ahi.dto.requestDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import com.example.Ahi.service.PromptService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,4 +33,23 @@ public class PromptController {
     public ResponseEntity<PromptResponseDto> getPrompt(@PathVariable Long id){
         return ResponseEntity.ok(promptService.getPrompt(id));
     }
+
+    @GetMapping("/my-page/{member_id}")
+    public ResponseEntity<ArrayList<PromptListResponseDto>> getMyPromptList(@PathVariable String member_id){
+        ArrayList<PromptListResponseDto> promptList = promptService.getMyList(member_id);
+        return ResponseEntity.ok(promptList);
+    }
+
+    @PutMapping("/my-page/{prompt_id}")
+    public ResponseEntity<String> modifyPrompt(@PathVariable Long prompt_id,
+                                               @RequestBody PromptRequestDto promptRequestDto){
+        return ResponseEntity.ok(promptService.modifyPrompt(prompt_id, promptRequestDto));
+
+    }
+
+    @DeleteMapping("/my-page/{prompt_id}")
+    public ResponseEntity<String> deletePrompt(@PathVariable Long prompt_id){
+        return ResponseEntity.ok(promptService.deletePrompt(prompt_id));
+    }
+
 }

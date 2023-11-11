@@ -1,4 +1,4 @@
-package com.example.Ahi.dto.responseDto;
+package com.example.Ahi.dto.requestDto;
 
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class PromptRequestDto {
-    private Member member_id;
+    private String member_id;
     private String title;
     private String description;
     private String content;
@@ -28,9 +28,9 @@ public class PromptRequestDto {
     // 예시 사용 내역 -> List로 받고 각각을 chatExample로 만든 후 각자 저장 + 두 example은 형식 통합
     // tag -> list로 받고 각각을 tags로 만든 후 각각 저장
 
-    public Prompt toPrompt(LocalDateTime now){
+    public Prompt toPrompt(Member member, LocalDateTime now){
         return Prompt.builder()
-                .member_id(member_id)
+                .member(member)
                 .title(title)
                 .description(description)
                 .content(content)

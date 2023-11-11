@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface ChatExampleRepository extends JpaRepository<ChatExample, Long> {
     List<ChatExample> findByPrompt(Prompt prompt);
+    void deleteByPrompt(Prompt prompt);
 }
