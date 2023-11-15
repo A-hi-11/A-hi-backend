@@ -10,5 +10,6 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
     List<Comment> findByPromptId(Prompt promptId);
+    void deleteByPromptId(Prompt promptId);
 
 }

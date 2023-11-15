@@ -1,17 +1,11 @@
 package com.example.Ahi.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
-import com.example.Ahi.domain.ChatExample;
-import com.example.Ahi.domain.Member;
-import com.example.Ahi.domain.Prompt;
-import com.example.Ahi.domain.Tags;
+import com.example.Ahi.domain.*;
+import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
-import com.example.Ahi.dto.requestDto.PromptListResponseDto;
+import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
-import com.example.Ahi.repository.ChatExampleRepository;
-import com.example.Ahi.repository.MemberRepository;
-import com.example.Ahi.repository.PromptRepository;
-import com.example.Ahi.repository.TagsRepository;
+import com.example.Ahi.repository.*;
 import com.example.Ahi.entity.Message;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +25,8 @@ public class PromptService {
     private final ChatExampleRepository chatExampleRepository;
     private final TagsRepository tagsRepository;
     private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
+    private final PreferenceRepository preferenceRepository;
 
     public String create(PromptRequestDto promptRequestDto){
         Member member = memberRepository.findById(promptRequestDto.getMember_id()).orElse(null);
@@ -73,17 +69,10 @@ public class PromptService {
         };
 
         List<Prompt> promptList = promptRepository.findAll(spec, sortObj);
-        ArrayList<PromptListResponseDto> responseList = new ArrayList<>();
-        for (Prompt prompt : promptList) {
-            // TODO: 좋아요 수 및 댓글 수 로직 추가 필요
-            PromptListResponseDto responseDto = prompt.toPromptListResponseDto();
-            responseList.add(responseDto);
-        }
-        return responseList;
+        return getPromptListResponseDtos(promptList);
     }
 
     public PromptResponseDto getPrompt(Long id){
-        // TODO: 좋아요 및 댓글 추가 필요
         Prompt prompt = promptRepository.findById(id).orElse(null);
         if(prompt == null){
             return null;
@@ -121,6 +110,13 @@ public class PromptService {
         }
         promptResponseDto.setExample(chatExamples);
 
+
+        // 댓글 추가
+        List<Comment> comments = commentRepository.findByPromptId(prompt);
+        promptResponseDto.setComments((ArrayList<Comment>) comments);
+        // 좋아요 추가
+        List<Preference> preferences = preferenceRepository.findByPrompt(prompt);
+        promptResponseDto.setLikes(preferences.size());
         return promptResponseDto;
     }
     public ArrayList<PromptListResponseDto> getMyList(String member_id) {
@@ -129,13 +125,31 @@ public class PromptService {
             return null;
         }
         List<Prompt> promptList = promptRepository.findByMember(member.get());
-        ArrayList<PromptListResponseDto> responseList = new ArrayList<>();
-        for (Prompt prompt : promptList) {
-            // TODO: 좋아요 수 및 댓글 수 로직 추가 필요
-            PromptListResponseDto responseDto = prompt.toPromptListResponseDto();
-            responseList.add(responseDto);
+        return getPromptListResponseDtos(promptList);
+    }
+
+    public String addPreference(PreferenceRequestDto preferenceRequestDto){
+        Prompt prompt = promptRepository.findById(preferenceRequestDto.getPrompt_id()).orElse(null);
+        Member member = memberRepository.findById(preferenceRequestDto.getMember_id()).orElse(null);
+        if (prompt == null || member == null){
+            return "프롬프트 혹은 회원이 존재하지 않습니다.";
         }
-        return responseList;
+        List<Preference> preferenceList =  preferenceRepository.findByMemberAndPrompt(member, prompt);
+        if(preferenceList.isEmpty()){
+            Preference newPreference =
+                    Preference.builder()
+                            .member(member)
+                            .prompt(prompt)
+                            .status(preferenceRequestDto.getStatus())
+                            .build();
+            preferenceRepository.save(newPreference);
+        }
+        else{
+            Preference preference = preferenceList.get(0);
+            preference.setStatus(preferenceRequestDto.getStatus());
+            preferenceRepository.save(preference);
+        }
+        return "성공적으로 등록되었습니다.";
     }
 
     @Transactional
@@ -167,10 +181,11 @@ public class PromptService {
 
     @Transactional
     public String deletePrompt(Long prompt_id){
-        // TODO: comment likes 삭제 추가 필요 // 또는 table 제약 조건 변경
+        // TODO: likes 삭제 추가 필요
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         tagsRepository.deleteByPrompt(prompt);
         chatExampleRepository.deleteByPrompt(prompt);
+        commentRepository.deleteByPromptId(prompt);
         if (prompt != null) {
             promptRepository.delete(prompt);
         } else {
@@ -179,6 +194,17 @@ public class PromptService {
         return "정상적으로 삭제되었습니다.";
     }
 
+    private ArrayList<PromptListResponseDto> getPromptListResponseDtos(List<Prompt> promptList) {
+        ArrayList<PromptListResponseDto> responseList = new ArrayList<>();
+        for (Prompt prompt : promptList) {
+            List<Preference> preferenceList = preferenceRepository.findByPrompt(prompt);
+            List<Comment> commentList = commentRepository.findByPromptId(prompt);
+            PromptListResponseDto responseDto = prompt
+                    .toPromptListResponseDto(commentList.size(), preferenceList.size());
+            responseList.add(responseDto);
+        }
+        return responseList;
+    }
     private void saveTags(Set<String> tags, Prompt prompt){
         for(String tag: tags){
             Tags newTag = new Tags();

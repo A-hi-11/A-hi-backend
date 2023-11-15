@@ -1,7 +1,8 @@
 package com.example.Ahi.controller;
 
+import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
-import com.example.Ahi.dto.requestDto.PromptListResponseDto;
+import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import com.example.Ahi.service.PromptService;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,11 @@ public class PromptController {
     @GetMapping("/view/{id}")
     public ResponseEntity<PromptResponseDto> getPrompt(@PathVariable Long id){
         return ResponseEntity.ok(promptService.getPrompt(id));
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<String> addPreference(@RequestBody PreferenceRequestDto preferenceRequestDto){
+        return ResponseEntity.ok(promptService.addPreference(preferenceRequestDto));
     }
 
     @GetMapping("/my-page/{member_id}")

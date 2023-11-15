@@ -1,5 +1,6 @@
 package com.example.Ahi.dto.responseDto;
 
+import com.example.Ahi.domain.Comment;
 import com.example.Ahi.entity.Message;
 import lombok.*;
 
@@ -27,5 +28,7 @@ public class PromptResponseDto {
 
     // TODO: 좋아요수, 댓글 목록 추가 필요
     private ArrayList<ArrayList<Message>> example;
+    private long likes;
+    private ArrayList<Comment> comments;
     private Set<String> tags;
 }

@@ -1,7 +1,7 @@
 package com.example.Ahi.domain;
 
 
-import com.example.Ahi.dto.requestDto.PromptListResponseDto;
+import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,8 +34,9 @@ public class Prompt {
     private LocalDateTime create_time;
     private LocalDateTime update_time;
 
-    public PromptListResponseDto toPromptListResponseDto(){
+    public PromptListResponseDto toPromptListResponseDto(long comments, long likes){
         return PromptListResponseDto.builder()
+                .prompt_id(prompt_id)
                 .member_id(member.getMember_id())
                 .title(title)
                 .description(description)
@@ -43,6 +44,8 @@ public class Prompt {
                 .category(category)
                 .create_time(create_time)
                 .update_time(update_time)
+                .comments(comments)
+                .likes(likes)
                 .build();
     }
 

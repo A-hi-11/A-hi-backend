@@ -1,4 +1,4 @@
-package com.example.Ahi.dto.requestDto;
+package com.example.Ahi.dto.responseDto;
 
 import lombok.*;
 
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Builder
 public class PromptListResponseDto {
+    private Long prompt_id;
     private String member_id;
     private String title;
     private String description;
