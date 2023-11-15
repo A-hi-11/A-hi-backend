@@ -152,7 +152,7 @@ public class PromptService {
             prompt.setUpdate_time(LocalDateTime.now());
             promptRepository.save(prompt);
         } else {
-            throw new NotFoundException("Prompt not found with id " + prompt_id);
+            return "존재하지 않는 프롬프트입니다.";
         };
         tagsRepository.deleteByPrompt(prompt);
         chatExampleRepository.deleteByPrompt(prompt);
@@ -174,7 +174,7 @@ public class PromptService {
         if (prompt != null) {
             promptRepository.delete(prompt);
         } else {
-            throw new NotFoundException("Prompt not found with id " + prompt_id);
+            return "존재하지 않는 프롬프트입니다.";
         }
         return "정상적으로 삭제되었습니다.";
     }
