@@ -41,6 +41,15 @@ public class CommentController {
         return ResponseEntity.ok().body(response);
     }
 
+    @PutMapping("/update/{comment_id}")
+    public ResponseEntity update_comment(@PathVariable("comment_id")Long id,
+                                         @RequestBody CommentRequest request){
+
+
+        CommentResponse response = commentService.update_comment(id, request.getComment());
+        return ResponseEntity.ok().body(response);
+    }
+
 
 
 

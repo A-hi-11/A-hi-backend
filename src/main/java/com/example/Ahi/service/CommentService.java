@@ -72,4 +72,20 @@ public class CommentService {
 
         return response;
     }
+
+    public CommentResponse update_comment(Long id,String context){
+        Optional<Comment> comment = commentRepository.findById(id);
+        CommentResponse response = new CommentResponse();
+        
+        if(comment.isPresent()){
+            comment.get().setContent(context);
+            comment.get().setCreate_time(LocalDateTime.now());
+            commentRepository.save(comment.get());
+            response.setMessage("성공적으로 수정하였습니다.");
+        }
+        else{
+            response.setMessage("없는 댓글입니다. 수정에 실패했습니다.");
+        }
+        return response;
+    }
 }
