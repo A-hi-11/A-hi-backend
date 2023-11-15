@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name="chat_image")
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

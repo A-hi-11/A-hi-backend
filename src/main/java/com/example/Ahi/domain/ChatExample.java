@@ -19,6 +19,10 @@ public class ChatExample {
     @ManyToOne
     @JoinColumn(name="prompt_id")
     private Prompt prompt;
+
+    @ManyToOne
+    @JoinColumn(name="member_id")
+    private Member member;
     private String message;
     @Column(nullable = false, columnDefinition = "TINYINT(1)")
     private boolean isQuestion;

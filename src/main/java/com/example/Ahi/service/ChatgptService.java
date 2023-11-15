@@ -1,7 +1,12 @@
 package com.example.Ahi.service;
 
+import com.example.Ahi.domain.ChatRoom;
+import com.example.Ahi.domain.Member;
 import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
 import com.example.Ahi.dto.requestDto.Message;
+import com.example.Ahi.repository.ChatRoomRepository;
+import com.example.Ahi.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.json.JSONParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,10 +18,18 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class ChatgptService {
+
+    private final ChatRoomRepository chatRoomRepository;
+    private final MemberRepository memberRepository;
+    private final ChatRoomService chatRoomService;
+    private final ChatService chatService;
+
     @Value("${gpt-key}")
     private String key;
 
@@ -41,7 +54,6 @@ public class ChatgptService {
         requestDto.setTopP(1.0);
 
         HttpEntity<ChatgptRequestDto> requestEntity = new HttpEntity<>(requestDto, headers);
-
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<Map<String,Object>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity,new ParameterizedTypeReference<Map<String,Object>>() {});
@@ -56,6 +68,17 @@ public class ChatgptService {
 
 
         response.setAnswer(String.valueOf(jsonObject.get("content")));
+
+        // 채팅방 생성
+        Long chat_room_id = chatRoomService.start_chatroom("member_id","gpt-3.5-turbo");
+
+        //채팅내역 저장
+        //사용자 발화
+        chatService.save_chat(chat_room_id,false,request.getPrompt());
+        //gpt 발화
+        chatService.save_chat(chat_room_id,true,response.getAnswer());
+
+
         return response;
     }
 
