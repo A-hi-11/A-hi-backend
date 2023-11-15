@@ -181,11 +181,12 @@ public class PromptService {
 
     @Transactional
     public String deletePrompt(Long prompt_id){
-        // TODO: likes 삭제 추가 필요
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         tagsRepository.deleteByPrompt(prompt);
         chatExampleRepository.deleteByPrompt(prompt);
         commentRepository.deleteByPromptId(prompt);
+        preferenceRepository.deleteByPrompt(prompt);
+
         if (prompt != null) {
             promptRepository.delete(prompt);
         } else {
