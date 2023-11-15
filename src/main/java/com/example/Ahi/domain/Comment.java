@@ -13,7 +13,7 @@ public class Comment {
     private Long comment_id;
     @ManyToOne
     @JoinColumn(name="prompt_id")
-    private Prompt prompt_id;
+    private Prompt promptId;
     @ManyToOne
     @JoinColumn(name="member_id")
     private Member member_id;
