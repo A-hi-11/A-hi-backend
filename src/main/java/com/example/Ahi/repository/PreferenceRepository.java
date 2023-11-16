@@ -13,4 +13,6 @@ public interface PreferenceRepository extends JpaRepository<Preference,Long> {
 
     List<Preference> findByPrompt(Prompt prompt);
     void deleteByPrompt(Prompt prompt);
+
+    List<Preference> findByMemberAndStatus(Member member, String status);
 }
