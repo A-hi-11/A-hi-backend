@@ -3,14 +3,14 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.domain.ChatRoom;
 import com.example.Ahi.domain.Member;
-import com.example.Ahi.repository.ChatRoomRepository;
-import com.example.Ahi.repository.CommentRepository;
-import com.example.Ahi.repository.MemberRepository;
-import com.example.Ahi.repository.PromptRepository;
+import com.example.Ahi.dto.responseDto.ChatRoomResponse;
+import com.example.Ahi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +18,7 @@ import java.util.Optional;
 public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatRepository chatRepository;
 
 
     public Long start_chatroom(String member_id, String model_type){
@@ -41,6 +42,27 @@ public class ChatRoomService {
         }
 
         return chat_room_id;
+    }
+
+    public List<ChatRoomResponse> roomList(Member member){
+        String member_id = "test@gmail.com";
+        List<ChatRoom> chatRooms = chatRoomRepository.findByMemberId(member_id);
+        List<ChatRoomResponse> lists = new ArrayList<>();
+
+
+        for (ChatRoom chatRoom:chatRooms){
+            ChatRoomResponse response = new ChatRoomResponse();
+            response.setChat_room_id(chatRoom.getChat_room_id());
+            response.setCreate_time(chatRoom.getCreate_time());
+            response.setChat_room_name(chatRoom.getChat_room_name());
+            response.setModel_type(chatRoom.getModel_type());
+            String last_message = chatRepository.findLastMessage(member_id,chatRoom.getChat_room_id()).get();
+            response.setLast_message(last_message);
+
+            lists.add(response);
+        }
+
+        return lists;
     }
 
 
