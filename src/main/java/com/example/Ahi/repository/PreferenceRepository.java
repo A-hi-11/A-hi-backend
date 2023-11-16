@@ -1,6 +1,5 @@
 package com.example.Ahi.repository;
 
-import com.example.Ahi.domain.Comment;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Preference;
 import com.example.Ahi.domain.Prompt;

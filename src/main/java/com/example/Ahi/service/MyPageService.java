@@ -8,7 +8,6 @@ import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PreferenceRepository;
 import com.example.Ahi.repository.PromptRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.collection.spi.PersistentList;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
