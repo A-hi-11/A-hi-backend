@@ -6,7 +6,6 @@ import lombok.Getter;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(allowedHeaders = "*")
 @RequestMapping
 public class TestController {
     @GetMapping("/test")
