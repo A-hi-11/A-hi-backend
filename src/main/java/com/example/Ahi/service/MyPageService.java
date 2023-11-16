@@ -28,5 +28,36 @@ public class MyPageService {
 
     }
 
+    public String updateProfileImg(String newImage){
+
+        Optional<Member> member = memberRepository.findById("test@gmail.com");
+
+        if (member.isPresent()) {
+            Member pmember = member.get();
+            pmember.setProfile_image(newImage);
+            memberRepository.save(pmember);
+            return "프로필 이미지가 변경되었습니다.";
+        } else {
+            return "해당 이메일을 가진 회원이 존재하지 않습니다.";
+        }
+
+    }
+
+    public String updateNickname(String newNickname){
+
+        Optional<Member> member = memberRepository.findById("test@gmail.com");
+
+        if (member.isPresent()) {
+            Member pmember = member.get();
+            pmember.setNickname(newNickname);
+            memberRepository.save(pmember);
+            return "별명이 변경되었습니다.";
+        } else {
+            return "해당 이메일을 가진 회원이 존재하지 않습니다.";
+        }
+
+    }
+
+
 
 }
