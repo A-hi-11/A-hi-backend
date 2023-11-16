@@ -46,6 +46,7 @@ public class ChatRoomService {
 
     public List<ChatRoomResponse> roomList(Member member){
         String member_id = "test@gmail.com";
+        //member = memberRepository.findById(member_id).get();
         List<ChatRoom> chatRooms = chatRoomRepository.findByMemberId(member_id);
         List<ChatRoomResponse> lists = new ArrayList<>();
 
@@ -56,7 +57,7 @@ public class ChatRoomService {
             response.setCreate_time(chatRoom.getCreate_time());
             response.setChat_room_name(chatRoom.getChat_room_name());
             response.setModel_type(chatRoom.getModel_type());
-            String last_message = chatRepository.findLastMessage(member_id,chatRoom.getChat_room_id()).get();
+            String last_message = chatRepository.findLastMessage(chatRoom.getChat_room_id()).get();
             response.setLast_message(last_message);
 
             lists.add(response);
