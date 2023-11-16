@@ -2,6 +2,7 @@ package com.example.Ahi.repository;
 
 import com.example.Ahi.domain.ChatRoom;
 import com.example.Ahi.domain.Member;
+import com.example.Ahi.domain.Prompt;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
