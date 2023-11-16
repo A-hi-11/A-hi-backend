@@ -25,9 +25,9 @@ public class ChatRoomController {
 
     @DeleteMapping("{chat_room_id}")
     public ResponseEntity delete(@PathVariable("chat_room_id")Long chat_room_id){
+        String response = chatRoomService.delete(chat_room_id);
 
-
-        return ResponseEntity.ok().body(null);
+        return ResponseEntity.ok().body(response);
     }
 
 }
