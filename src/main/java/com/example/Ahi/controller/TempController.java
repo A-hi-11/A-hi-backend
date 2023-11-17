@@ -12,6 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class TempController {
     @GetMapping()
     public ResponseEntity memberResult(Authentication authentication){
-        return ResponseEntity.ok().body(authentication.getName()+"님 안녕하세요");
+        String response = "";
+        if(authentication == null){
+            response="존재하지 않는 사용자";
+        }
+        else{
+            response=authentication.getName()+"님 안녕하세요";
+        }
+
+        return ResponseEntity.ok().body(response);
     }
 }

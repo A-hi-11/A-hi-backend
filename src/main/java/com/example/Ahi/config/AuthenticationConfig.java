@@ -37,6 +37,7 @@ public class AuthenticationConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers("/**").permitAll()
+                                .requestMatchers("/memberCheck").authenticated()
 //                                //TODO: 배포 후 설정
 //                                .requestMatchers("/user/signin","user/signup").permitAll()
 //                                .requestMatchers(HttpMethod.POST, "/**").authenticated()
