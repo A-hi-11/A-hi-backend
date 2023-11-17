@@ -25,7 +25,7 @@ public class MemberController {
 
     @PostMapping("/signin")
     public ResponseEntity login(@RequestBody SigninRequest request){
-        String response = memberService.login(request.getUserId(), request.getUserPassword());
+        String response = memberService.loginAndReturnToken(request.getUserId(), request.getUserPassword());
         return ResponseEntity.ok().body(response);
     }
 }

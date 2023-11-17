@@ -45,9 +45,19 @@ public class MemberService {
 
 
 
-    public String login(String member_id, String password){
-        //TODO: 일치하는 멤버 확인
+    public String loginAndReturnToken(String member_id, String password){
+        Optional<Member> member = memberRepository.findById(member_id);
+        String response = "";
+        if(!member.isPresent())
+            response = "존재하지 않는 회원입니다. 로그인에 실패하였습니다.";
 
-        return JwtUtil.createJwt(member_id,secretKey,expiredMs);
+        else{
+            if(member.get().getPassword().equals(password))
+                response = JwtUtil.createJwt(member_id,secretKey,expiredMs);
+            else
+                response = "비밀번호가 일치하지 않습니다. 로그인에 실패하였습니다.";
+        }
+
+        return response;
     }
 }
