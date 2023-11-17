@@ -1,6 +1,5 @@
 package com.example.Ahi.repository;
 
-import com.example.Ahi.domain.Comment;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Preference;
 import com.example.Ahi.domain.Prompt;
@@ -13,4 +12,6 @@ public interface PreferenceRepository extends JpaRepository<Preference,Long> {
 
     List<Preference> findByPrompt(Prompt prompt);
     void deleteByPrompt(Prompt prompt);
+
+    List<Preference> findByMemberAndStatus(Member member, String status);
 }

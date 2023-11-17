@@ -143,13 +143,14 @@ public class PromptService {
                             .status(preferenceRequestDto.getStatus())
                             .build();
             preferenceRepository.save(newPreference);
+            return "성공적으로 등록되었습니다.";
         }
         else{
             Preference preference = preferenceList.get(0);
-            preference.setStatus(preferenceRequestDto.getStatus());
-            preferenceRepository.save(preference);
+            preferenceRepository.delete(preference);
+            return "성공적으로 취소되었습니다.";
         }
-        return "성공적으로 등록되었습니다.";
+
     }
 
     @Transactional
