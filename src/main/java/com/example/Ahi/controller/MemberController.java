@@ -2,6 +2,7 @@ package com.example.Ahi.controller;
 
 
 import com.example.Ahi.dto.requestDto.MemberRequest;
+import com.example.Ahi.dto.requestDto.SigninRequest;
 import com.example.Ahi.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,5 +21,11 @@ public class MemberController {
 
         return ResponseEntity.ok().body(response);
 
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity login(@RequestBody SigninRequest request){
+        String response = memberService.login(request.getUserId(), request.getUserPassword());
+        return ResponseEntity.ok().body(response);
     }
 }
