@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Data
 @Getter
-public class KoauthToken {
+public class KakaoToken {
     private String access_token;
     private String token_type;
     private String refresh_token;

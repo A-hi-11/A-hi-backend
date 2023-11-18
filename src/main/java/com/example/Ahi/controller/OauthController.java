@@ -18,14 +18,24 @@ public class OauthController {
     private final OauthService oauthService;
 
     @GetMapping("/kakao")
-    public ResponseEntity<String> oauthLogin(@RequestHeader("Access-Code") String code) {
+    public ResponseEntity<String> kakaoLogin(@RequestHeader("Access-Code") String code) {
 
-        String accessToken = oauthService.getAccessToken(code).getAccess_token();
+        String accessToken = oauthService.getKakaoAccessToken(code).getAccess_token();
 
 //        HttpHeaders header = new HttpHeaders();
 //        header.set("Authorization", accessToken);
 
-        return ResponseEntity.ok(accessToken);
+        return ResponseEntity.ok("카카오 로그인+회원가입 성공");
     }
+
+
+    @GetMapping("/naver")
+    public ResponseEntity<String> naverLogin(@RequestHeader("Access-Code") String code) {
+        String accessToken = oauthService.getNaverAccessToken(code).getAccessToken();
+
+        return ResponseEntity.ok("네이버 로그인+회원가입 성공");
+    }
+
+
 
 }

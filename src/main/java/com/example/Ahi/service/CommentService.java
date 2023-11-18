@@ -89,12 +89,6 @@ public class CommentService {
         }
 
 
-
-
-
-
-
-
         return responseList;
     }
 
