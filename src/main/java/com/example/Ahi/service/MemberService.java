@@ -31,7 +31,7 @@ public class MemberService {
         }
         else{
             newMember.setMember_id(request.getMember_id());
-            newMember.setPassword(request.getPassword());
+            newMember.setPassword(request.getPassword());   // password 인코딩 필요
             newMember.setNickname(request.getNickname());
             newMember.setProfile_image(request.getProfile_image());
             newMember.setLast_update_time(LocalDateTime.now());
@@ -48,11 +48,11 @@ public class MemberService {
     public String loginAndReturnToken(String member_id, String password){
         Optional<Member> member = memberRepository.findById(member_id);
         String response = "";
-        if(!member.isPresent())
+        if(member.isEmpty())
             response = "존재하지 않는 회원입니다. 로그인에 실패하였습니다.";
 
         else{
-            if(member.get().getPassword().equals(password))
+            if(member.get().getPassword().equals(password)) // 패스워드는 인코딩하여 확인 필요
                 response = JwtUtil.createJwt(member_id,secretKey,expiredMs);
             else
                 response = "비밀번호가 일치하지 않습니다. 로그인에 실패하였습니다.";
