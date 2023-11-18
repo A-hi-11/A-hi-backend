@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("prompt/comment")
 @RequiredArgsConstructor
@@ -34,10 +36,10 @@ public class CommentController {
     }
 
     @GetMapping("/read/{prompt_id}")
-    public ResponseEntity read_comment(@PathVariable("prompt_id")Long id){
-
-
-        CommentListResponse response = commentService.read_comment(id);
+    public ResponseEntity read_comment(@PathVariable("prompt_id")Long prompt_id){
+        //TODO: 멤버 찾기
+        String member_id = "test@gmail.com";
+        List<CommentListResponse> response = commentService.read_comment(prompt_id,member_id);
         return ResponseEntity.ok().body(response);
     }
 
