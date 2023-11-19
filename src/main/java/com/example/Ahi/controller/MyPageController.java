@@ -1,7 +1,8 @@
 package com.example.Ahi.controller;
 
 import com.example.Ahi.dto.requestDto.NicknameRequest;
-import com.example.Ahi.dto.requestDto.PasswordRequest;
+import com.example.Ahi.dto.requestDto.PasswordCheckRequest;
+import com.example.Ahi.dto.requestDto.PasswordUpdateRequest;
 import com.example.Ahi.dto.requestDto.ProfileImgRequest;
 import com.example.Ahi.dto.responseDto.LikedPromptResponse;
 import com.example.Ahi.service.MyPageService;
@@ -18,9 +19,14 @@ import java.util.List;
 public class MyPageController {
     private final MyPageService myPageService;
 
-    @PutMapping("/password")
-    public ResponseEntity<String> updatePassword(@RequestBody PasswordRequest new_password){
+    @PutMapping("/password/update")
+    public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateRequest new_password){
         return ResponseEntity.ok(myPageService.updatePassword(new_password.getNew_password()));
+    }
+
+    @PutMapping("/password/check")
+    public ResponseEntity<String> checkPassword(@RequestBody PasswordCheckRequest cur_password){
+        return ResponseEntity.ok(myPageService.checkPassword(cur_password.getCur_password()));
     }
 
     @PutMapping("/image")
