@@ -30,14 +30,19 @@ public class MyPageService {
 
         Optional<Member> member = memberRepository.findById("test@gmail.com");
 
-        //TODO:예외처리(이전 비밀번호와 같은지, 비밀조건 조건 만족하는지) ,,, 자체로그인이 아니면 비밀번호는 null이긴 함
+        //TODO:소셜로그인 한 경우 처리
         if (member.isPresent()) {
             Member pmember = member.get();
-            pmember.setPassword(newPassword);
+
+            //String encoded = passwordEncoder.encode(newPassword);
+            //System.out.println(encoded);
+
+            pmember.setPassword(passwordEncoder.encode(newPassword));
             memberRepository.save(pmember);
+
             return "비밀번호가 변경되었습니다.";
         } else {
-            return "해당 이메일을 가진 회원이 존재하지 않습니다.";
+            return "회원정보가 존재하지 않습니다.";
         }
 
     }
