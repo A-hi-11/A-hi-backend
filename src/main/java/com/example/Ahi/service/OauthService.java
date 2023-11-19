@@ -144,6 +144,7 @@ public class OauthService {
         return kakaoProfile;
     }
 
+
     public String naverLogin(String accessCode) {
 
         RestTemplate rt = new RestTemplate();
@@ -240,6 +241,5 @@ public class OauthService {
         }
         return response;
     }
-
 
 }

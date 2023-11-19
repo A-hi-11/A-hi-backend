@@ -34,7 +34,8 @@ public class AuthenticationConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+//                .cors(Customizer.withDefaults())
+                .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize

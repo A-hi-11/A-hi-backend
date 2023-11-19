@@ -20,6 +20,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.amazonaws:aws-java-sdk-core:1.12.402'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'org.springframework.boot:spring-boot-starter-mail:3.1.2'
 	compileOnly 'org.projectlombok:lombok:1.18.22'
