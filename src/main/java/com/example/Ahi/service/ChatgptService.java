@@ -3,12 +3,14 @@ package com.example.Ahi.service;
 import com.example.Ahi.config.ChatgptConfig;
 import com.example.Ahi.domain.ChatRoom;
 import com.example.Ahi.domain.Member;
+import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.domain.Text;
 import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
 import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatgptResponseDto;
 import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.MemberRepository;
+import com.example.Ahi.repository.PromptRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.json.JSONParser;
 import org.json.JSONArray;
@@ -31,6 +33,7 @@ public class ChatgptService {
 
     private final ChatRoomService chatRoomService;
     private final ChatService chatService;
+    private final PromptRepository promptRepository;
     @Autowired
     ChatgptConfig config;
 
@@ -71,6 +74,63 @@ public class ChatgptService {
 
         return response;
     }
+
+
+
+    public ChatgptResponse useGpt(Long prompt_id, ChatgptRequest request){
+        //1. prompt찾아 "user" role로 세팅하기
+        //2. 대화내역 찾아 추가하기 -> 없다면 새로운 채팅방으로 만들어 줘야함
+        //3. 전송하기
+        //4. 대화내역 저장하기
+        ChatgptResponse response = new ChatgptResponse();
+        ChatgptRequestDto requestDto = new ChatgptRequestDto();
+
+
+        Long chat_room_id = chatRoomService.find_promptroom("member_id",prompt_id);
+
+        List<Message> messages = compositeMessage(request.getPrompt(),chat_room_id);
+        messages.add(0,setPrompt(prompt_id));
+        requestDto.setMessages(messages);
+
+        HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<ChatgptResponseDto> responseEntity = restTemplate.postForEntity(
+                url,
+                requestEntity,
+                ChatgptResponseDto.class);
+
+        //response 파싱
+        ChatgptResponseDto result = responseEntity.getBody();
+        String answer = result.getChoices().get(0).getMessage().getContent();
+
+        response.setAnswer(answer);
+
+        //채팅내역 저장
+        //사용자 발화
+        chatService.save_chat(chat_room_id,true,request.getPrompt());
+        //gpt 발화
+        chatService.save_chat(chat_room_id,false,response.getAnswer());
+
+
+        return response;
+
+
+    }
+
+    public Message setPrompt(Long prompt_id){
+        Message message = new Message();
+        Optional<Prompt> prompt = promptRepository.findById(prompt_id);
+
+        if(prompt.isPresent()){
+            message.setRole("system");
+            message.setContent(prompt.get().getContent());
+        }
+
+        return message;
+    }
+
+
+
 
 
 

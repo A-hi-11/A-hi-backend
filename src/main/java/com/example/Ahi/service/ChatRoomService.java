@@ -3,6 +3,7 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.domain.ChatRoom;
 import com.example.Ahi.domain.Member;
+import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.responseDto.ChatRoomResponse;
 import com.example.Ahi.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +20,14 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
+    private final ConfigInfoRepository configInfoRepository;
+    private final PromptRepository promptRepository;
 
 
     public Long find_chatroom(String member_id, String model_type){
         Optional<Member> member = memberRepository.findById("test@gmail.com");
         model_type = "gpt-3.5-turbo";
+
         Optional<ChatRoom> exists_chatRoom = chatRoomRepository.findAllByMemberAndNull(member.get().getMember_id());
         Long chat_room_id;
 
@@ -31,7 +35,7 @@ public class ChatRoomService {
             ChatRoom chatRoom = new ChatRoom();
             chatRoom.setCreate_time(LocalDateTime.now());
             chatRoom.setMember_id(member.get());
-            chatRoom.setChat_room_name("???");
+            chatRoom.setChat_room_name(model_type);
             chatRoom.setModel_type(model_type);
 
             chatRoomRepository.save(chatRoom);
@@ -39,6 +43,33 @@ public class ChatRoomService {
         }
         else{
             chat_room_id = exists_chatRoom.get().getChat_room_id();
+        }
+
+        return chat_room_id;
+    }
+
+    public Long find_promptroom(String member_id, Long prompt_id){
+        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Prompt> prompt = promptRepository.findById(prompt_id);
+        //String model_type = configInfoRepository.findByPromptId(prompt_id).get().getModel_name();
+
+        Optional<ChatRoom> promptRoom = chatRoomRepository.findAllByMemberAndPrompt(member.get().getMember_id(), prompt_id);
+        Long chat_room_id;
+
+        //새로 생성
+        if(!promptRoom.isPresent()){
+            ChatRoom chatRoom = new ChatRoom();
+            chatRoom.setCreate_time(LocalDateTime.now());
+            chatRoom.setMember_id(member.get());
+            chatRoom.setChat_room_name(prompt.get().getTitle());
+            chatRoom.setModel_type("gpt-3.5-turbo");
+            chatRoom.setPrompt_id(prompt.get());
+
+            chatRoomRepository.save(chatRoom);
+            chat_room_id = chatRoom.getChat_room_id();
+        }
+        else{
+            chat_room_id = promptRoom.get().getChat_room_id();
         }
 
         return chat_room_id;

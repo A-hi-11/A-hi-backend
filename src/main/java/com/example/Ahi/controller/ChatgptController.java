@@ -27,8 +27,10 @@ public class ChatgptController {
     }
 
     @PostMapping("/gpt/use/{prompt_id}")
-    public ResponseEntity useGpt(@PathVariable("prompt_id")Long prompt_id){
-        //chatgptService.useGpt(prompt_id);
-        return ResponseEntity.ok().body(null);
+    public ResponseEntity useGpt(@PathVariable("prompt_id")Long prompt_id,
+                                 @RequestBody ChatgptRequest request){
+
+        ChatgptResponse response = chatgptService.useGpt(prompt_id,request);
+        return ResponseEntity.ok().body(response);
     }
 }
