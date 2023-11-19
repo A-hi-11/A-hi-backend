@@ -1,9 +1,12 @@
 package com.example.Ahi.service;
 
+import com.example.Ahi.config.ChatgptConfig;
 import com.example.Ahi.domain.ChatRoom;
 import com.example.Ahi.domain.Member;
+import com.example.Ahi.domain.Text;
 import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
 import com.example.Ahi.dto.requestDto.Message;
+import com.example.Ahi.dto.responseDto.ChatgptResponseDto;
 import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import com.example.Ahi.dto.requestDto.ChatgptRequest;
 import com.example.Ahi.dto.responseDto.ChatgptResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -25,61 +29,71 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ChatgptService {
 
-    private final ChatRoomRepository chatRoomRepository;
-    private final MemberRepository memberRepository;
     private final ChatRoomService chatRoomService;
     private final ChatService chatService;
+    @Autowired
+    ChatgptConfig config;
 
     @Value("${gpt-key}")
     private String key;
+    private final String url = "https://api.openai.com/v1/chat/completions";
 
 
     public ChatgptResponse getGpt(ChatgptRequest request){
-        String url = "https://api.openai.com/v1/chat/completions";
         ChatgptResponse response = new ChatgptResponse();
-
-        //요청 헤더
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + key);
-
-        //요청 바디
         ChatgptRequestDto requestDto = new ChatgptRequestDto();
-        requestDto.setModel("gpt-3.5-turbo");
-        List<Message> messages = new ArrayList<>();
-        messages.add(new Message("user", request.getPrompt()));
-        requestDto.setMessages(messages);
-        requestDto.setMaxTokens(100);
-        requestDto.setTemperature(1.0);
-        requestDto.setTopP(1.0);
 
-        HttpEntity<ChatgptRequestDto> requestEntity = new HttpEntity<>(requestDto, headers);
+        // 채팅방 찾기(없으면 생성)
+        Long chat_room_id = chatRoomService.find_chatroom("member_id","gpt-3.5-turbo");
+        //요청 메세지
+        requestDto.setMessages(compositeMessage(request.getPrompt(),chat_room_id));
+
+        HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
         RestTemplate restTemplate = new RestTemplate();
-
-        ResponseEntity<Map<String,Object>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity,new ParameterizedTypeReference<Map<String,Object>>() {});
+        ResponseEntity<ChatgptResponseDto> responseEntity = restTemplate.postForEntity(
+                url,
+                requestEntity,
+                ChatgptResponseDto.class);
 
         //response 파싱
-        Map<String,Object> result = responseEntity.getBody();
-        assert result != null; //여기 예외처리 필요
-        @SuppressWarnings("unchecked")
-        ArrayList<Map<String,Object>> jsonArray = (ArrayList<Map<String,Object>>)result.get("choices");
-        @SuppressWarnings("unchecked")
-        Map<Object,Object> jsonObject = (Map<Object,Object>)jsonArray.get(0).get("message");
+        ChatgptResponseDto result = responseEntity.getBody();
+        String answer = result.getChoices().get(0).getMessage().getContent();
 
+        response.setAnswer(answer);
 
-        response.setAnswer(String.valueOf(jsonObject.get("content")));
-
-        // 채팅방 생성
-        Long chat_room_id = chatRoomService.start_chatroom("member_id","gpt-3.5-turbo");
 
         //채팅내역 저장
         //사용자 발화
-        chatService.save_chat(chat_room_id,false,request.getPrompt());
+        chatService.save_chat(chat_room_id,true,request.getPrompt());
         //gpt 발화
-        chatService.save_chat(chat_room_id,true,response.getAnswer());
+        chatService.save_chat(chat_room_id,false,response.getAnswer());
 
 
         return response;
     }
+
+
+
+    public HttpEntity<ChatgptRequestDto> compositeRequest(ChatgptRequestDto requestDto){
+        HttpHeaders headers = config.gptHeader();
+        //TODO: config클래스에 분리하기
+        ChatgptRequestDto body = config.gptBody();
+
+        requestDto.setModel("gpt-3.5-turbo");
+
+        return new HttpEntity<>(requestDto, headers);
+    }
+
+
+
+    public List<Message> compositeMessage(String input,Long chat_room_id){
+
+        List<Message> messages = chatService.memorizedChat(chat_room_id);
+        messages.add(new Message("user", input));
+
+        return messages;
+    }
+
+
 
 }
