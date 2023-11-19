@@ -1,10 +1,11 @@
-package com.example.Ahi.dto;
+package com.example.Ahi.dto.oauthDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+
+@Data
 public class NaverToken {
     @JsonProperty("access_token")
     private String accessToken;

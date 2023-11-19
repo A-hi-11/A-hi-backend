@@ -1,11 +1,12 @@
 package com.example.Ahi.service;
 
 import com.example.Ahi.domain.Member;
-import com.example.Ahi.dto.KakaoProfile;
-import com.example.Ahi.dto.KakaoToken;
-import com.example.Ahi.dto.NaverProfile;
-import com.example.Ahi.dto.NaverToken;
+import com.example.Ahi.dto.oauthDto.KakaoProfile;
+import com.example.Ahi.dto.oauthDto.KakaoToken;
+import com.example.Ahi.dto.oauthDto.NaverProfile;
+import com.example.Ahi.dto.oauthDto.NaverToken;
 import com.example.Ahi.repository.MemberRepository;
+import com.example.Ahi.utils.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,22 +26,13 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 public class OauthService {
 
     private final MemberRepository memberRepository;
-
+//
     @Value("${kakao.clientId}")
     String clientId;
 
     @Value("${kakao.redirectUrl}")
     String redirectUrl;
-
-//    @Value("${google.clientId}")
-//    String gClientId;
 //
-//    @Value("${google.clientSecret}")
-//    String gClientSecret;
-//
-//    @Value("${google.redirectUri}")
-//    String gRedirectUri;
-
     @Value("${naver.clientId}")
     String nClientId;
 
@@ -49,8 +41,13 @@ public class OauthService {
 
     @Value("${naver.redirectUri}")
     String nRedirectUri;
+//
+    @Value("${jwt-secret-key}")
+    private String secretKey;
+    private Long expiredMs = 1000*60*60L; //한시간
+//
 
-    public KakaoToken getKakaoAccessToken(String accessCode) {
+    public String kakaoLogin(String accessCode) {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -83,31 +80,37 @@ public class OauthService {
             e.printStackTrace();
         }
 
-        Member member = saveKakaoMember(kakaoToken.getAccess_token());
-        //System.out.println(member);
-        return kakaoToken;
+        KakaoProfile profile = findKakaoProfile(kakaoToken.getAccess_token());
+        String response = saveKakaoMember(profile);
+
+        return response;
 
     }
 
-    public Member saveKakaoMember(String token){
+    public String saveKakaoMember(KakaoProfile profile){
 
-        KakaoProfile profile = findKakaoProfile(token);
+        String response = "";
 
         Optional<Member> Opmember = memberRepository.findById("없는멤버");
 
         if(Opmember.isEmpty()) {
             Member member;
             member = Member.builder()
-                    .member_id("newKakao@kakao.com")
-                    .password("나는 카카오 계정")
+                    .member_id("tmpMail@kakao.com")
+                    .password("KAKAO")
                     .nickname(profile.getKakao_account().getProfile().getNickname())
                     .profile_image(profile.getKakao_account().getProfile().getProfile_image_url())
                     .build();
 
             memberRepository.save(member);
-            return member;
+            response = JwtUtil.createJwt(member.getMember_id(), secretKey, expiredMs);
         }
-        else {return null;}
+        //이미 회원정보가 존재하는 멤버
+        else {
+            response = JwtUtil.createJwt(Opmember.get().getMember_id(), secretKey, expiredMs);
+        }
+
+        return response;
     }
 
     public KakaoProfile findKakaoProfile(String token) {
@@ -141,8 +144,7 @@ public class OauthService {
         return kakaoProfile;
     }
 
-
-    public NaverToken getNaverAccessToken(String accessCode) {
+    public String naverLogin(String accessCode) {
 
         RestTemplate rt = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -173,17 +175,18 @@ public class OauthService {
             e.printStackTrace();
         }
 
-        findNaverProfile(naverToken.getAccessToken());
-        Member member = saveNaverMember(naverToken.getAccessToken());
-        return naverToken;
+        NaverProfile profile = findNaverProfile(naverToken.getAccessToken());
+        String response = saveNaverMember(profile);
+
+        return response;
 
     }
 
     public NaverProfile findNaverProfile(String token) {
 
         RestTemplate rt = new RestTemplate();
-
         HttpHeaders headers = new HttpHeaders();
+
         headers.add("Authorization", "Bearer " + token); //(1-4)
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
@@ -206,30 +209,37 @@ public class OauthService {
             System.out.println(naverProfile);
             e.printStackTrace();
         }
+
         //System.out.println(naverProfile);
         return naverProfile;
     }
 
-    public Member saveNaverMember(String token){
+    public String saveNaverMember(NaverProfile profile){
 
-        NaverProfile profile = findNaverProfile(token);
+        Optional<Member> Opmember = memberRepository.findById(profile.getResponse().getEmail());
+        Member member;
+        String response;
 
-        Optional<Member> Opmember = memberRepository.findById("없는멤버2");
-
+        //없는 멤버 회원정보 저장(회원가입)
         if(Opmember.isEmpty()) {
-            Member member;
             member = Member.builder()
                     .member_id(profile.getResponse().getEmail())
-                    .password("나는 네이버 계정")
+                    .password("NAVER")
                     .nickname(profile.getResponse().getNickname())
                     .profile_image(profile.getResponse().getProfile_image())
                     .build();
 
             memberRepository.save(member);
             //System.out.println(member);
-            return member;
+
+            response = JwtUtil.createJwt(member.getMember_id(), secretKey, expiredMs);
         }
-        else {return null;}
+        //이미 회원정보가 존재하는 멤버
+        else {
+            response = JwtUtil.createJwt(Opmember.get().getMember_id(), secretKey, expiredMs);
+        }
+        return response;
     }
+
 
 }

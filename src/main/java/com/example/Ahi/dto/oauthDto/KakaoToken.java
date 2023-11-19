@@ -1,4 +1,4 @@
-package com.example.Ahi.dto;
+package com.example.Ahi.dto.oauthDto;
 
 import lombok.Data;
 import lombok.Getter;
