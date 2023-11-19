@@ -27,21 +27,23 @@ public class OauthController {
     private final OauthService oauthService;
     private final GoogleService googleService;
 
-    @GetMapping("auth/kakao")
-    public ResponseEntity<String> oauthLogin(@RequestHeader("Access-Code") String code) {
 
-        String accessToken = oauthService.getAccessToken(code).getRefresh_token();
+    @GetMapping("/kakao")
+    public ResponseEntity<String> kakaoLogin(@RequestHeader("Access-Code") String code) {
 
-
-        return ResponseEntity.ok(accessToken);
+        String response = oauthService.kakaoLogin(code);
+//        HttpHeaders header = new HttpHeaders();
+//        header.set("Authorization", response);
+        return ResponseEntity.ok("카카오 로그인+회원가입 성공 : " + response);
     }
 
-//    @PostMapping("/google")
-//    public ResponseEntity<String> googleOAuthLogin() {
-//
-//
-//        return ResponseEntity.ok();
-//    }
+
+    @GetMapping("/naver")
+    public ResponseEntity<String> naverLogin(@RequestHeader("Access-Code") String code) {
+        String response = oauthService.naverLogin(code);
+        return ResponseEntity.ok("네이버 로그인+회원가입 성공 : " + response);
+    }
+
 
     @GetMapping("/google/redirect")
     public ResponseEntity<String> googleOAuthLoginRedirect(@RequestParam("code") String code) {

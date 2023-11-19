@@ -1,11 +1,11 @@
-package com.example.Ahi.dto;
+package com.example.Ahi.dto.oauthDto;
 
 import lombok.Data;
 import lombok.Getter;
 
 @Data
 @Getter
-public class KoauthToken {
+public class KakaoToken {
     private String access_token;
     private String token_type;
     private String refresh_token;
