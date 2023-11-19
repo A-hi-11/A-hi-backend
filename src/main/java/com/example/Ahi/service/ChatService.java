@@ -3,6 +3,7 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.domain.ChatRoom;
 import com.example.Ahi.domain.Text;
+import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatItemResponse;
 import com.example.Ahi.repository.ChatRepository;
 import com.example.Ahi.repository.ChatRoomRepository;
@@ -56,5 +57,22 @@ public class ChatService {
 
         return chatItemList;
 
+    }
+
+
+    public List<Message> memorizedChat(Long chat_room_id){
+        List<Text> chatList = chatRepository.findByChatRoomId(chat_room_id);
+        List<Message> messages = new ArrayList<>();
+        if(!chatList.isEmpty()){
+            for(Text chat:chatList){
+                Message message = new Message();
+                if (chat.isQuestion())message.setRole("user");
+                else message.setRole("assistant");
+
+                message.setContent(chat.getContent());
+                messages.add(message);
+            }
+        }
+        return messages;
     }
 }
