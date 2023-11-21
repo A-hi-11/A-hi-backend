@@ -21,7 +21,14 @@ public class DiffusionService {
     private String key;
 
     private final S3Service s3Service;
+    private final ChatRoomService chatRoomService;
+
     public String getDiffusion(String prompt) {
+        // TODO: chatroom 생성 시 imgUrl을 함께 저장해줘야 함.
+        return getImage(prompt);
+    }
+
+    private String getImage(String prompt){
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2";
 
@@ -30,15 +37,16 @@ public class DiffusionService {
         headers.set("Authorization", "Bearer " + key);
 
         // JSON 형식의 요청 본문 설정
+        // 채팅방에서 대화내역 가져와서 프롬프트에 같이 넣어줌.
+        // 이후 채팅방에 대화 추가
         String argument = ",realistic,best,4k";
+
         Map<String, String> body = new HashMap<>();
         body.put("inputs", prompt + argument);
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
 
         // POST 요청 보내기
         ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.POST, entity, byte[].class);
-
-        // TODO: chatroom 생성 시 imgUrl을 함께 저장해줘야 함.
         return s3Service.uploadDiffusionImage(response.getBody());
     }
 }

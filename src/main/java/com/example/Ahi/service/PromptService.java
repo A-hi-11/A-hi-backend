@@ -3,6 +3,7 @@ package com.example.Ahi.service;
 import com.example.Ahi.domain.*;
 import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
+import com.example.Ahi.dto.responseDto.CommentListResponse;
 import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import com.example.Ahi.repository.*;
@@ -14,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -27,6 +29,7 @@ public class PromptService {
     private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
     private final PreferenceRepository preferenceRepository;
+    private final ConfigInfoRepository configInfoRepository;
 
     public String create(PromptRequestDto promptRequestDto){
         Member member = memberRepository.findById(promptRequestDto.getMember_id()).orElse(null);
@@ -38,6 +41,10 @@ public class PromptService {
         }
         // prompt 저장 코드
         promptRepository.save(prompt);
+        if(promptRequestDto.getMediaType().equals("text")){
+            configInfoRepository.save(promptRequestDto.getGptConfigInfo().toConfigInfo(prompt));
+        }
+
         // tag 저장 코드
         saveTags(promptRequestDto.getTags(), prompt);
         // example 저장 코드
@@ -113,10 +120,13 @@ public class PromptService {
 
         // 댓글 추가
         List<Comment> comments = commentRepository.findByPromptId(prompt);
-        promptResponseDto.setComments((ArrayList<Comment>) comments);
+        promptResponseDto.setComments(getCommentList(comments));
         // 좋아요 추가
-        List<Preference> preferences = preferenceRepository.findByPrompt(prompt);
-        promptResponseDto.setLikes(preferences.size());
+        List<Preference> like = preferenceRepository.findByPromptAndStatus(prompt, "like");
+        promptResponseDto.setLikes(like.size());
+        // 싫어요 추가
+        List<Preference> dislike = preferenceRepository.findByPromptAndStatus(prompt, "dislike");
+        promptResponseDto.setLikes(dislike.size());
         return promptResponseDto;
     }
     public ArrayList<PromptListResponseDto> getMyList(String member_id) {
@@ -199,10 +209,11 @@ public class PromptService {
     private ArrayList<PromptListResponseDto> getPromptListResponseDtos(List<Prompt> promptList) {
         ArrayList<PromptListResponseDto> responseList = new ArrayList<>();
         for (Prompt prompt : promptList) {
-            List<Preference> preferenceList = preferenceRepository.findByPrompt(prompt);
+            List<Preference> likes = preferenceRepository.findByPromptAndStatus(prompt, "like");
+            List<Preference> dislikes = preferenceRepository.findByPromptAndStatus(prompt, "dislike");
             List<Comment> commentList = commentRepository.findByPromptId(prompt);
             PromptListResponseDto responseDto = prompt
-                    .toPromptListResponseDto(commentList.size(), preferenceList.size());
+                    .toPromptListResponseDto(commentList.size(), likes.size(), dislikes.size());
             responseList.add(responseDto);
         }
         return responseList;
@@ -223,5 +234,15 @@ public class PromptService {
                 chatExampleRepository.save(chatExample);
             }
         }
+    }
+
+    private ArrayList<CommentListResponse> getCommentList(List<Comment> list){
+        ArrayList<CommentListResponse> result = new ArrayList<>();
+        for(Comment comment: list){
+            Member member = memberRepository.findById(comment.getMember_id().getMember_id()).orElse(null);
+            assert member != null;
+            result.add(comment.toCommentListResponse(member));
+        }
+        return result;
     }
 }

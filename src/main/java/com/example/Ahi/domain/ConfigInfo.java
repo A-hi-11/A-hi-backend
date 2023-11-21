@@ -1,10 +1,16 @@
 package com.example.Ahi.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class ConfigInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

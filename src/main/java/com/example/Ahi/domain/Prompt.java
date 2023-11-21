@@ -34,7 +34,7 @@ public class Prompt {
     private LocalDateTime create_time;
     private LocalDateTime update_time;
 
-    public PromptListResponseDto toPromptListResponseDto(long comments, long likes){
+    public PromptListResponseDto toPromptListResponseDto(long comments, long likes, long dislikes){
         return PromptListResponseDto.builder()
                 .prompt_id(prompt_id)
                 .member_id(member.getMember_id())
@@ -46,6 +46,7 @@ public class Prompt {
                 .update_time(update_time)
                 .comments(comments)
                 .likes(likes)
+                .dislikes(dislikes)
                 .build();
     }
 

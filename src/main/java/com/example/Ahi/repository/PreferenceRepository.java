@@ -10,7 +10,7 @@ import java.util.List;
 public interface PreferenceRepository extends JpaRepository<Preference,Long> {
     List<Preference> findByMemberAndPrompt(Member member, Prompt prompt);
 
-    List<Preference> findByPrompt(Prompt prompt);
+    List<Preference> findByPromptAndStatus(Prompt prompt, String status);
     void deleteByPrompt(Prompt prompt);
 
     List<Preference> findByMemberAndStatus(Member member, String status);
