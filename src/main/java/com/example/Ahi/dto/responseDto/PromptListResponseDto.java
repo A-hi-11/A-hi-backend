@@ -12,14 +12,14 @@ import java.time.LocalDateTime;
 public class PromptListResponseDto {
     private Long prompt_id;
     private String member_id;
+    private String nickname;
     private String title;
     private String description;
     private String mediaType;
     private String category;
     private LocalDateTime create_time;
     private LocalDateTime update_time;
-
-    // TODO: 추후 추가 예정
     private Long likes;
+    private long dislikes;
     private Long comments;
 }

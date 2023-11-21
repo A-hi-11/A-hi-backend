@@ -2,6 +2,7 @@ package com.example.Ahi.dto.requestDto;
 
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
+import com.example.Ahi.entity.GptConfigInfo;
 import com.example.Ahi.entity.Message;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class PromptRequestDto {
     private String category;
     private boolean permission;
     private String welcome_message;
+    private GptConfigInfo gptConfigInfo;
 
     private ArrayList<ArrayList<Message>> example;
     private Set<String> tags;

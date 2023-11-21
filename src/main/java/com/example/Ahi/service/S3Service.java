@@ -40,7 +40,7 @@ public class S3Service {
         return getFileUrl(keyName);
     }
 
-    public String getFileUrl(String keyName) {
+    private String getFileUrl(String keyName) {
         return amazonS3Client.getResourceUrl(bucket, keyName);
     }
 }
