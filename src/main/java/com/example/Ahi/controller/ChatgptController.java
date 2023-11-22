@@ -22,6 +22,7 @@ public class ChatgptController {
 
     @PostMapping("/gpt")
     public ChatgptResponse getGpt(@RequestBody ChatgptRequest request){
+        System.out.println(request);
         return chatgptService.getGpt(request);
 
     }
