@@ -1,8 +1,8 @@
 package com.example.Ahi.service;
 
 import com.example.Ahi.domain.Member;
-import com.example.Ahi.entity.GoogleProfile;
-import com.example.Ahi.entity.GoogleToken;
+import com.example.Ahi.dto.oauthDto.GoogleProfile;
+import com.example.Ahi.dto.oauthDto.GoogleToken;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.utils.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;

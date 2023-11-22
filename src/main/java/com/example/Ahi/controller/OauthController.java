@@ -28,8 +28,8 @@ public class OauthController {
     private final GoogleService googleService;
 
 
-    @GetMapping("/kakao")
-    public ResponseEntity<String> kakaoLogin(@RequestParam("Access-Code") String code) {
+    @GetMapping("/kakao/redirect")
+    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) {
 
         String response = oauthService.kakaoLogin(code);
 //        HttpHeaders header = new HttpHeaders();

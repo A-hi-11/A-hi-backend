@@ -1,4 +1,4 @@
-package com.example.Ahi.entity;
+package com.example.Ahi.dto.oauthDto;
 
 import com.example.Ahi.domain.Member;
 import lombok.Data;
