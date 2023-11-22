@@ -42,14 +42,14 @@ public class ChatgptService {
     private final String url = "https://api.openai.com/v1/chat/completions";
 
 
-    public ChatgptResponse getGpt(ChatgptRequest request){
+    public ChatgptResponse getGpt(String request){
         ChatgptResponse response = new ChatgptResponse();
         ChatgptRequestDto requestDto = new ChatgptRequestDto();
 
         // 채팅방 찾기(없으면 생성)
         Long chat_room_id = chatRoomService.find_chatroom("member_id","gpt-3.5-turbo");
         //요청 메세지
-        requestDto.setMessages(compositeMessage(request.getPrompt(),chat_room_id));
+        requestDto.setMessages(compositeMessage(request,chat_room_id));
 
         HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
         RestTemplate restTemplate = new RestTemplate();
@@ -67,7 +67,7 @@ public class ChatgptService {
 
         //채팅내역 저장
         //사용자 발화
-        chatService.save_chat(chat_room_id,true,request.getPrompt());
+        chatService.save_chat(chat_room_id,true,request);
         //gpt 발화
         chatService.save_chat(chat_room_id,false,response.getAnswer());
 
