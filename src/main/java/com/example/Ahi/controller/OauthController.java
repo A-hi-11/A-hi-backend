@@ -29,7 +29,7 @@ public class OauthController {
 
 
     @GetMapping("/kakao")
-    public ResponseEntity<String> kakaoLogin(@RequestHeader("Access-Code") String code) {
+    public ResponseEntity<String> kakaoLogin(@RequestParam("Access-Code") String code) {
 
         String response = oauthService.kakaoLogin(code);
 //        HttpHeaders header = new HttpHeaders();
@@ -38,8 +38,8 @@ public class OauthController {
     }
 
 
-    @GetMapping("/naver")
-    public ResponseEntity<String> naverLogin(@RequestHeader("Access-Code") String code) {
+    @GetMapping("/naver/redirect")
+    public ResponseEntity<String> naverLogin(@RequestParam("code") String code) {
         String response = oauthService.naverLogin(code);
         return ResponseEntity.ok("네이버 로그인+회원가입 성공 : " + response);
     }
