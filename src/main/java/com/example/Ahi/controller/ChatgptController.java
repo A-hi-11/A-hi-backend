@@ -21,9 +21,9 @@ public class ChatgptController {
     private final ChatgptService chatgptService;
 
     @PostMapping("/gpt")
-    public ChatgptResponse getGpt(@RequestBody String request){
-        System.out.println(request);
-        return chatgptService.getGpt(request);
+    public ResponseEntity getGpt(@RequestBody String prompt){
+        System.out.println(prompt);
+        return ResponseEntity.ok().body(chatgptService.getGpt(prompt));
 
     }
 
