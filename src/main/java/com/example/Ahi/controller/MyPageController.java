@@ -4,7 +4,7 @@ import com.example.Ahi.dto.requestDto.NicknameRequest;
 import com.example.Ahi.dto.requestDto.PasswordCheckRequest;
 import com.example.Ahi.dto.requestDto.PasswordUpdateRequest;
 import com.example.Ahi.dto.requestDto.ProfileImgRequest;
-import com.example.Ahi.dto.responseDto.LikedPromptResponse;
+import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +40,8 @@ public class MyPageController {
     }
 
     @GetMapping("/likes")
-    public ResponseEntity<List<LikedPromptResponse>> getLikedPrompt() {
-        ArrayList<LikedPromptResponse> likedPromptList = myPageService.getLikedPrompt();
+    public ResponseEntity<List<PromptListResponseDto>> getLikedPrompt() {
+        ArrayList<PromptListResponseDto> likedPromptList = myPageService.getLikedPrompt();
         return ResponseEntity.ok(likedPromptList);
     }
 

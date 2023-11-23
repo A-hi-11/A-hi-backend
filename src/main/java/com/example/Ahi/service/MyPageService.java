@@ -1,9 +1,11 @@
 package com.example.Ahi.service;
 
+import com.example.Ahi.domain.Comment;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Preference;
 import com.example.Ahi.domain.Prompt;
-import com.example.Ahi.dto.responseDto.LikedPromptResponse;
+import com.example.Ahi.dto.responseDto.PromptListResponseDto;
+import com.example.Ahi.repository.CommentRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PreferenceRepository;
 import com.example.Ahi.repository.PromptRepository;
@@ -23,6 +25,7 @@ public class MyPageService {
     private final MemberRepository memberRepository;
     private final PreferenceRepository preferenceRepository;
     private final PromptRepository promptRepository;
+    private final CommentRepository commentRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -95,13 +98,15 @@ public class MyPageService {
 
     }
 
-    public ArrayList<LikedPromptResponse> getLikedPrompt() {
+    public ArrayList<PromptListResponseDto> getLikedPrompt() {
 
         Optional<Member> member = memberRepository.findById("test@gmail.com");
 
         if (member.isPresent()) {
+
             List<Preference> myPreferences = preferenceRepository.findByMemberAndStatus(member.get(), "like");
             ArrayList<Prompt> likedPromptList = new ArrayList<>();
+            ArrayList<PromptListResponseDto> responses = new ArrayList<>();
 
             for (Preference preference : myPreferences) {
                 Long promptId = preference.getPrompt().getPrompt_id();
@@ -109,17 +114,16 @@ public class MyPageService {
                 likedPromptList.add(prompt);
             }
 
-            ArrayList<LikedPromptResponse> responses = new ArrayList<>();
-
             for (Prompt prompt : likedPromptList) {
-                LikedPromptResponse response = new LikedPromptResponse();
-                response.setPrompt_id(prompt.getPrompt_id());
-                response.setContent(prompt.getContent());
-                response.setTitle(prompt.getTitle());
-                response.setCreate_time(prompt.getCreate_time());
-                response.setUpdate_time(prompt.getUpdate_time());
 
-                responses.add(response);
+                List<Preference> likes = preferenceRepository.findByPromptAndStatus(prompt, "like");
+                List<Preference> dislikes = preferenceRepository.findByPromptAndStatus(prompt, "dislike");
+                List<Comment> commentList = commentRepository.findByPromptId(prompt);
+
+                PromptListResponseDto responseDto = prompt
+                        .toPromptListResponseDto(commentList.size(), likes.size(), dislikes.size());
+                responses.add(responseDto);
+
             }
 
             return responses;
