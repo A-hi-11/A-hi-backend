@@ -38,6 +38,7 @@ public class Prompt {
         return PromptListResponseDto.builder()
                 .prompt_id(prompt_id)
                 .member_id(member.getMember_id())
+                .nickname(member.getNickname())
                 .title(title)
                 .description(description)
                 .mediaType(mediaType)

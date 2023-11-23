@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class LikedPromptResponse {
+public class LikedPromptListResponse {
     private Long prompt_id;
     private String title;
     private String content;
