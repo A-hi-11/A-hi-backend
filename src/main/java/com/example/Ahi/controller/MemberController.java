@@ -1,8 +1,10 @@
 package com.example.Ahi.controller;
 
 
+import com.example.Ahi.dto.requestDto.MailCheckRequest;
 import com.example.Ahi.dto.requestDto.MemberRequest;
 import com.example.Ahi.dto.requestDto.SigninRequest;
+import com.example.Ahi.service.MailService;
 import com.example.Ahi.service.MemberService;
 import com.example.Ahi.utils.MailUtil;
 import com.example.Ahi.utils.MailUtilImpl;
@@ -15,10 +17,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("user")
 @RequiredArgsConstructor
 public class MemberController {
-
     private final MemberService memberService;
+    private final MailService mailService;
     @Autowired
     public MailUtil mailUtil;
+
 
     @PostMapping("/signup") //회원가입
     public ResponseEntity signup(@RequestBody MemberRequest request){
@@ -42,5 +45,11 @@ public class MemberController {
         int sendCode = mailUtil.sendMessage(email);
 
         return ResponseEntity.ok().body(sendCode);
+    }
+    @PostMapping("/mail/check")
+    public ResponseEntity codeCheck(@RequestBody MailCheckRequest request){
+        boolean result = mailService.codeCheck(request.getEmail(),request.getCode());
+
+        return ResponseEntity.ok().body(result);
     }
 }

@@ -13,12 +13,16 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 
 @Component
+@RequiredArgsConstructor
 public class MailUtilImpl implements MailUtil{
 
     @Autowired
     JavaMailSender emailSender;
 
-    public static final int CODE = createKey();
+    private final RedisUtil redisUtil;
+
+    private Long expiredMs = 1000*60*5L; //5분
+    public static final int CODE = createCode();
     @Value("${AdminMail.id}")
     private String host_mail_address;
 
@@ -26,12 +30,12 @@ public class MailUtilImpl implements MailUtil{
     private String password;
 
 
-
     private MimeMessage createMessage(String to)throws Exception{
         MimeMessage  message = emailSender.createMimeMessage();
 
+        message.setFrom(new InternetAddress("host_mail_address","에이하이"));//보내는 사람
         message.addRecipients(MimeMessage.RecipientType.TO, to);//보내는 대상
-        message.setSubject("이메일 인증 테스트");//제목
+        message.setSubject("[에이하이]이메일 인증");//제목
 
         String msgg="";
         msgg+= "<div style='margin:20px;'>";
@@ -45,12 +49,11 @@ public class MailUtilImpl implements MailUtil{
         msgg+= "<br/>"+CODE+"</strong><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress(host_mail_address,password));//보내는 사람
 
         return message;
     }
 
-    public static int createKey() {
+    public static int createCode() {
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());
         int key = random.nextInt(100000) % 100000;
@@ -59,14 +62,19 @@ public class MailUtilImpl implements MailUtil{
         return final_code;
     }
     @Override
-    public int sendMessage(String to) throws Exception {
-        MimeMessage message = createMessage(to);
+    public int sendMessage(String email) throws Exception {
+        MimeMessage message = createMessage(email);
         try{//예외처리
             emailSender.send(message);
+            saveCode(email,String.valueOf(CODE));
         }catch(MailException es){
             es.printStackTrace();
             throw new IllegalArgumentException();
         }
         return CODE;
+    }
+
+    public void saveCode(String member_id,String code){
+        redisUtil.setData(member_id,code,expiredMs);
     }
 }

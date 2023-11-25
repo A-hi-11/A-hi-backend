@@ -44,4 +44,5 @@ src/main/resources/application-jwt.properties
 src/main/resources/application-koauth.properties
 src/main/resources/application-google.properties
 src/main/resources/application-mail.properties
+src/main/resources/application-redis.properties
 
