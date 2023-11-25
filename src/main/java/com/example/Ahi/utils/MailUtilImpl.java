@@ -33,8 +33,9 @@ public class MailUtilImpl implements MailUtil{
     private MimeMessage createMessage(String to)throws Exception{
         MimeMessage  message = emailSender.createMimeMessage();
 
+        message.setFrom(new InternetAddress("host_mail_address","에이하이"));//보내는 사람
         message.addRecipients(MimeMessage.RecipientType.TO, to);//보내는 대상
-        message.setSubject("이메일 인증 테스트");//제목
+        message.setSubject("[에이하이]이메일 인증");//제목
 
         String msgg="";
         msgg+= "<div style='margin:20px;'>";
@@ -48,7 +49,6 @@ public class MailUtilImpl implements MailUtil{
         msgg+= "<br/>"+CODE+"</strong><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress(host_mail_address,password));//보내는 사람
 
         return message;
     }
