@@ -13,18 +13,21 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 
 @Component
+@RequiredArgsConstructor
 public class MailUtilImpl implements MailUtil{
 
     @Autowired
     JavaMailSender emailSender;
 
-    public static final int CODE = createKey();
+    private final RedisUtil redisUtil;
+
+    private Long expiredMs = 1000*60*5L; //5분
+    public static final int CODE = createCode();
     @Value("${AdminMail.id}")
     private String host_mail_address;
 
     @Value("${AdminMail.password}")
     private String password;
-
 
 
     private MimeMessage createMessage(String to)throws Exception{
@@ -50,7 +53,7 @@ public class MailUtilImpl implements MailUtil{
         return message;
     }
 
-    public static int createKey() {
+    public static int createCode() {
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());
         int key = random.nextInt(100000) % 100000;
@@ -59,14 +62,19 @@ public class MailUtilImpl implements MailUtil{
         return final_code;
     }
     @Override
-    public int sendMessage(String to) throws Exception {
-        MimeMessage message = createMessage(to);
+    public int sendMessage(String email) throws Exception {
+        MimeMessage message = createMessage(email);
         try{//예외처리
             emailSender.send(message);
+            saveCode(email,String.valueOf(CODE));
         }catch(MailException es){
             es.printStackTrace();
             throw new IllegalArgumentException();
         }
         return CODE;
+    }
+
+    public void saveCode(String member_id,String code){
+        redisUtil.setData(member_id,code,expiredMs);
     }
 }
