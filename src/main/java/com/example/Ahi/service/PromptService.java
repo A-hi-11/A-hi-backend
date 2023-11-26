@@ -126,7 +126,7 @@ public class PromptService {
         promptResponseDto.setLikes(like.size());
         // 싫어요 추가
         List<Preference> dislike = preferenceRepository.findByPromptAndStatus(prompt, "dislike");
-        promptResponseDto.setLikes(dislike.size());
+        promptResponseDto.setDislikes(dislike.size());
         return promptResponseDto;
     }
     public ArrayList<PromptListResponseDto> getMyList(String member_id) {
