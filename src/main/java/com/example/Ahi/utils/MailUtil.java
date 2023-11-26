@@ -2,5 +2,5 @@ package com.example.Ahi.utils;
 
 
 public interface MailUtil {
-    int sendMessage(String to) throws Exception;
+    int sendMessage(String email) throws Exception;
 }
