@@ -42,12 +42,12 @@ public class ChatgptService {
     private final String url = "https://api.openai.com/v1/chat/completions";
 
 
-    public ChatgptResponse getGpt(String request){
+    public ChatgptResponse getGpt(Long chatroom_id,String request){
         ChatgptResponse response = new ChatgptResponse();
         ChatgptRequestDto requestDto = new ChatgptRequestDto();
 
         // 채팅방 찾기(없으면 생성)
-        Long chat_room_id = chatRoomService.find_chatroom("member_id","gpt-3.5-turbo");
+        Long chat_room_id = chatRoomService.find_chatroom("member_id","gpt-3.5-turbo",chatroom_id);
         //요청 메세지
         requestDto.setMessages(compositeMessage(request,chat_room_id));
 

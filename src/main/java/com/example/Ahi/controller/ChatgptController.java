@@ -20,9 +20,9 @@ public class ChatgptController {
     @Autowired
     private final ChatgptService chatgptService;
 
-    @PostMapping("/gpt")
-    public ChatgptResponse getGpt(@RequestBody ChatgptRequest request){
-        return chatgptService.getGpt(request.getPrompt());
+    @PostMapping("/gpt/{chat_room_id}")
+    public ChatgptResponse getGpt(@PathVariable("chat_room_id") Long chat_room_id, @RequestBody ChatgptRequest request){
+        return chatgptService.getGpt(chat_room_id,request.getPrompt());
     }
 
     @PostMapping("/gpt/use/{prompt_id}")
