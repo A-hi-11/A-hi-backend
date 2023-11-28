@@ -12,10 +12,10 @@ public class GoogleProfile {
     public Boolean email_verified;
     public String name;
     public String given_name;
-    public String familyName;
+    public String family_name;
     public String picture;
     public String locale;
-
+    public String hd;
     public Member toMember(){
         return Member.builder()
                 .member_id(email)
