@@ -11,6 +11,10 @@ import com.example.Ahi.dto.responseDto.ChatgptResponseDto;
 import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
+import com.knuddels.jtokkit.Encodings;
+import com.knuddels.jtokkit.api.Encoding;
+import com.knuddels.jtokkit.api.EncodingRegistry;
+import com.knuddels.jtokkit.api.ModelType;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.json.JSONParser;
 import org.json.JSONArray;
@@ -151,9 +155,20 @@ public class ChatgptService {
         List<Message> messages = chatService.memorizedChat(chat_room_id);
         messages.add(new Message("user", input));
 
+        while (getTokenSize(messages.toString())>4000){
+            messages.remove(1);
+        }
+        //System.out.println(getTokenSize(messages.toString())+"/n"+messages);
         return messages;
     }
 
+    public int getTokenSize(String text) {
+        EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
+        Encoding enc = registry.getEncodingForModel(ModelType.GPT_3_5_TURBO);
+
+        List<Integer> encoded = enc.encode(text);
+        return encoded.size();
+    }
 
 
 }
