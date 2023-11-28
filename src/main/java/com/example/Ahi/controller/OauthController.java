@@ -9,8 +9,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -19,7 +21,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@RestController
+import java.net.URI;
+
+@Controller
 @RequestMapping("")
 @RequiredArgsConstructor
 public class OauthController {
@@ -36,7 +40,10 @@ public class OauthController {
 //        header.set("Authorization", response);
         return ResponseEntity.ok("카카오 로그인+회원가입 성공 : " + response);
     }
-
+    @GetMapping( "/google-login")
+    public String redirectToGoogle() {
+        return "redirect:/oauth2/authorization/google";
+    }
 
     @GetMapping("/naver/redirect")
     public ResponseEntity<String> naverLogin(@RequestParam("code") String code) {
@@ -44,11 +51,11 @@ public class OauthController {
         return ResponseEntity.ok("네이버 로그인+회원가입 성공 : " + response);
     }
 
-
     @GetMapping("/google/redirect")
-    public ResponseEntity<String> googleOAuthLoginRedirect(@RequestParam("code") String code) {
-        String accessToken = googleService.getGoogleAccessToken(code);
-        return ResponseEntity.ok(accessToken);
-    }
+    public ResponseEntity<?> googleOAuthLoginRedirect(@RequestParam("code") String code) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(googleService.getGoogleAccessToken(code)));
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
 
+    }
 }
