@@ -1,6 +1,7 @@
 package com.example.Ahi.controller;
 
 import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
+import com.example.Ahi.dto.requestDto.PromptInfoDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
 import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
@@ -30,9 +31,9 @@ public class PromptController {
         return ResponseEntity.ok(promptList);
     }
 
-    @GetMapping("/view/{id}")
-    public ResponseEntity<PromptResponseDto> getPrompt(@PathVariable Long id){
-        return ResponseEntity.ok(promptService.getPrompt(id));
+    @GetMapping("/view/info")
+    public ResponseEntity<PromptResponseDto> getPrompt(@RequestBody PromptInfoDto promptInfoDto){
+        return ResponseEntity.ok(promptService.getPrompt(promptInfoDto));
     }
 
     @PostMapping("/like")

@@ -2,6 +2,7 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.domain.*;
 import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
+import com.example.Ahi.dto.requestDto.PromptInfoDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
 import com.example.Ahi.dto.responseDto.CommentListResponse;
 import com.example.Ahi.dto.responseDto.PromptListResponseDto;
@@ -79,8 +80,8 @@ public class PromptService {
         return getPromptListResponseDtos(promptList);
     }
 
-    public PromptResponseDto getPrompt(Long id){
-        Prompt prompt = promptRepository.findById(id).orElse(null);
+    public PromptResponseDto getPrompt(PromptInfoDto promptInfoDto){
+        Prompt prompt = promptRepository.findById(promptInfoDto.getPrompt_id()).orElse(null);
         if(prompt == null){
             return null;
         }
@@ -127,6 +128,10 @@ public class PromptService {
         // 싫어요 추가
         List<Preference> dislike = preferenceRepository.findByPromptAndStatus(prompt, "dislike");
         promptResponseDto.setDislikes(dislike.size());
+        // 내 프롬프트인지 여부
+        Member member = memberRepository.findById(promptInfoDto.getMember_id()).orElse(null);
+        boolean isMyPrompt = prompt.getMember() == member;
+        promptResponseDto.setMyPrompt(isMyPrompt);
         return promptResponseDto;
     }
     public ArrayList<PromptListResponseDto> getMyList(String member_id) {

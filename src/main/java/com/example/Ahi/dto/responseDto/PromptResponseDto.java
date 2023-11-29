@@ -30,4 +30,5 @@ public class PromptResponseDto {
     private long dislikes;
     private ArrayList<CommentListResponse> comments;
     private Set<String> tags;
+    private boolean isMyPrompt;
 }
