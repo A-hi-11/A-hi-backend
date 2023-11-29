@@ -193,10 +193,12 @@ public class DiffusionService {
 
     private String preProcessing(String question){
         int tokenCount = countToken(question);
+        System.out.println(tokenCount + question);
 
         while(true){
-            if(tokenCount > 75){
+            if(tokenCount > 70){
                 question = question.substring(1);
+                tokenCount--;
             }
             else{
                 break;
