@@ -3,6 +3,7 @@ package com.example.Ahi.service;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.dto.oauthDto.GoogleProfile;
 import com.example.Ahi.dto.oauthDto.GoogleToken;
+import com.example.Ahi.dto.responseDto.MemberResponseDto;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.utils.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,7 +42,13 @@ public class GoogleService {
         Long expiredMs = 1000 * 60 * 60L;
         String jwt = JwtUtil.createJwt(member.getMember_id(), secretKey, expiredMs);
         // TODO: 프론트 서버의 주소로 리디렉트하도록 구현 추가로 멤버 정보 넣기
-        return "http://localhost:3000/" + jwt;
+        MemberResponseDto memberResponseDto = new MemberResponseDto(member, jwt);
+
+        return "http://localhost:3000?member_id=" +
+                memberResponseDto.getMember_id() +
+                "&nickname=" + memberResponseDto.getNickname() +
+                "&profile_image=" + memberResponseDto.getProfile_image() +
+                "&jwt=" + memberResponseDto.getJwt();
     }
 
     private GoogleToken getGoogleToken(String accessCode){
