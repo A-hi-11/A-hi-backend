@@ -8,6 +8,7 @@ import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import com.example.Ahi.repository.*;
 import com.example.Ahi.entity.Message;
+import io.jsonwebtoken.lang.Assert;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -79,10 +80,12 @@ public class PromptService {
     }
 
     public PromptResponseDto getPrompt(long prompt_id, String member_id){
+//        Prompt prompt = promptRepository.findById(prompt_id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프롬프트입니다."));
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
-        if(prompt == null){
-            return null;
-        }
+        Assert.notNull(prompt, "존재하지 않는 프롬프트입니다");
+//        if(prompt == null){
+//            return null;
+//        }
         PromptResponseDto promptResponseDto = prompt.toPromptResponseDto();
 
         // 태그 넣기
@@ -205,11 +208,7 @@ public class PromptService {
             configInfoRepository.deleteByPromptId(prompt);
         }
 
-        if (prompt != null) {
-            promptRepository.delete(prompt);
-        } else {
-            return "존재하지 않는 프롬프트입니다.";
-        }
+        promptRepository.delete(prompt);
         return "정상적으로 삭제되었습니다.";
     }
 
