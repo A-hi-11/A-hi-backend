@@ -2,7 +2,6 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.domain.*;
 import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
-import com.example.Ahi.dto.requestDto.PromptInfoDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
 import com.example.Ahi.dto.responseDto.CommentListResponse;
 import com.example.Ahi.dto.responseDto.PromptListResponseDto;
@@ -16,7 +15,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -80,8 +78,8 @@ public class PromptService {
         return getPromptListResponseDtos(promptList);
     }
 
-    public PromptResponseDto getPrompt(PromptInfoDto promptInfoDto){
-        Prompt prompt = promptRepository.findById(promptInfoDto.getPrompt_id()).orElse(null);
+    public PromptResponseDto getPrompt(long prompt_id, String member_id){
+        Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         if(prompt == null){
             return null;
         }
@@ -129,7 +127,7 @@ public class PromptService {
         List<Preference> dislike = preferenceRepository.findByPromptAndStatus(prompt, "dislike");
         promptResponseDto.setDislikes(dislike.size());
         // 내 프롬프트인지 여부
-        Member member = memberRepository.findById(promptInfoDto.getMember_id()).orElse(null);
+        Member member = memberRepository.findById(member_id).orElse(null);
         boolean isMyPrompt = prompt.getMember() == member;
         promptResponseDto.setMyPrompt(isMyPrompt);
         return promptResponseDto;
