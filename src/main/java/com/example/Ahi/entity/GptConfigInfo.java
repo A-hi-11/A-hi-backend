@@ -16,7 +16,7 @@ public class GptConfigInfo {
 
     public ConfigInfo toConfigInfo(Prompt prompt){
         return ConfigInfo.builder()
-                .prompt_id(prompt)
+                .promptId(prompt)
                 .maximum_length(maximum_length)
                 .temperature(temperature)
                 .frequency_penalty(frequency_penalty)

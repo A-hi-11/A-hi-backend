@@ -201,6 +201,10 @@ public class PromptService {
         commentRepository.deleteByPromptId(prompt);
         preferenceRepository.deleteByPrompt(prompt);
 
+        if(prompt.getMediaType().equals("text")){
+            configInfoRepository.deleteByPromptId(prompt);
+        }
+
         if (prompt != null) {
             promptRepository.delete(prompt);
         } else {

@@ -17,7 +17,7 @@ public class ConfigInfo {
     private Long Config_info_id;
     @OneToOne
     @JoinColumn(name="prompt_id")
-    private Prompt prompt_id;
+    private Prompt promptId;
     private String model_name;
     private float temperature;
     private Long maximum_length;
