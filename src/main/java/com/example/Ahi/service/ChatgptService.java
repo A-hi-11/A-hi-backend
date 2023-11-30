@@ -8,6 +8,7 @@ import com.example.Ahi.domain.Text;
 import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
 import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatgptResponseDto;
+import com.example.Ahi.entity.GptConfigInfo;
 import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
@@ -42,7 +43,7 @@ public class ChatgptService {
     private final String url = "https://api.openai.com/v1/chat/completions";
 
 
-    public ChatgptResponse getGpt(Long chatroom_id,String request){
+    public ChatgptResponse getGpt(Long chatroom_id, String request, GptConfigInfo gptConfigInfo){
         ChatgptResponse response = new ChatgptResponse();
         ChatgptRequestDto requestDto = new ChatgptRequestDto();
 
@@ -50,6 +51,14 @@ public class ChatgptService {
         Long chat_room_id = chatRoomService.find_chatroom("member_id","gpt-3.5-turbo",chatroom_id);
         //요청 메세지
         requestDto.setMessages(compositeMessage(request,chat_room_id));
+
+        requestDto.setModel(gptConfigInfo.getModel_name());
+        requestDto.setTemperature((double) gptConfigInfo.getTemperature());
+        requestDto.setMaxTokens(gptConfigInfo.getMaximum_length().intValue());
+        requestDto.setStop_sequences(gptConfigInfo.getStop_sequence());
+        requestDto.setTopP((double) gptConfigInfo.getTop_p());
+        requestDto.setFrequency_penalty((double) gptConfigInfo.getFrequency_penalty());
+        requestDto.setPresence_penalty((double) gptConfigInfo.getPresence_penalty());
 
         HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
         RestTemplate restTemplate = new RestTemplate();
@@ -122,7 +131,7 @@ public class ChatgptService {
         Optional<Prompt> prompt = promptRepository.findById(prompt_id);
 
         if(prompt.isPresent()){
-            message.setRole("system");
+            message.setRole("user");
             message.setContent(prompt.get().getContent());
         }
 
