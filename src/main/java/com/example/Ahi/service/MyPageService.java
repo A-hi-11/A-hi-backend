@@ -12,6 +12,7 @@ import com.example.Ahi.repository.PromptRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +27,10 @@ public class MyPageService {
     private final PreferenceRepository preferenceRepository;
     private final PromptRepository promptRepository;
     private final CommentRepository commentRepository;
-
     private final PasswordEncoder passwordEncoder;
+
+    private final S3Service s3Service;
+
 
     public String updatePassword(String newPassword){
 
@@ -68,15 +71,23 @@ public class MyPageService {
         else { return "회원정보가 존재하지 않습니다.";}
     }
 
-    public String updateProfileImg(String newImage){
+    public String updateProfileImg(MultipartFile newImage){
+
+        String imgUrl = "";
+        try{
+            imgUrl = s3Service.uploadProfileImage(newImage.getBytes());
+            System.out.println(imgUrl);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save image",e);
+        }
 
         Optional<Member> member = memberRepository.findById("test@gmail.com");
 
         if (member.isPresent()) {
             Member pmember = member.get();
-            pmember.setProfile_image(newImage);
+            pmember.setProfile_image(imgUrl);
             memberRepository.save(pmember);
-            return "프로필 이미지가 변경되었습니다.";
+            return imgUrl;
         } else {
             return "해당 이메일을 가진 회원이 존재하지 않습니다.";
         }
