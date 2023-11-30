@@ -114,8 +114,10 @@ public class CommentService {
         if(comment.isPresent()){
             comment.get().setContent(context);
             comment.get().setCreate_time(LocalDateTime.now());
+            System.out.println(comment.get());
             commentRepository.save(comment.get());
             response.setMessage("성공적으로 수정하였습니다.");
+            response.setId(comment.get().getComment_id());
         }
         else{
             response.setMessage("없는 댓글입니다. 수정에 실패했습니다.");
