@@ -9,6 +9,7 @@ import com.example.Ahi.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +31,8 @@ public class MyPageController {
     }
 
     @PutMapping("/image")
-    public ResponseEntity<String> updateProfileImg(@RequestBody ProfileImgRequest new_profileImg){
-        return ResponseEntity.ok(myPageService.updateProfileImg(new_profileImg.getNew_profileImg()));
+    public ResponseEntity<String> updateProfileImg(@RequestPart("profileImage") MultipartFile imgFile){
+        return ResponseEntity.ok(myPageService.updateProfileImg(imgFile));
     }
 
     @PutMapping("/nickname")
