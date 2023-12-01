@@ -1,6 +1,7 @@
 package com.example.Ahi.controller;
 
 
+import com.example.Ahi.dto.requestDto.EmailDto;
 import com.example.Ahi.dto.requestDto.MailCheckRequest;
 import com.example.Ahi.dto.requestDto.MemberRequest;
 import com.example.Ahi.dto.requestDto.SigninRequest;
@@ -40,9 +41,9 @@ public class MemberController {
 
 
     @PostMapping("/mail")
-    public ResponseEntity emailConfirm(@RequestBody String email) throws Exception {
+    public ResponseEntity emailConfirm(@RequestBody EmailDto email) throws Exception {
 
-        int sendCode = mailUtil.sendMessage(email);
+        int sendCode = mailUtil.sendMessage(email.getEmail());
 
         return ResponseEntity.ok().body(sendCode);
     }
