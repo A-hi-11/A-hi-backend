@@ -197,11 +197,11 @@ public class PromptService {
         // example 저장 코드
         saveChatExample(promptRequestDto.getExample(), prompt);
 
-        // configInfo 수정
-        if(promptRequestDto.getMediaType().equals("text")){
-            configInfoRepository.deleteByPromptId(prompt);
-            configInfoRepository.save(promptRequestDto.getGptConfigInfo().toConfigInfo(prompt));
-        }
+//        // configInfo 수정
+//        if(promptRequestDto.getMediaType().equals("text")){
+//            configInfoRepository.deleteByPromptId(prompt);
+//            configInfoRepository.save(promptRequestDto.getGptConfigInfo().toConfigInfo(prompt));
+//        }
         return "정상적으로 수정되었습니다.";
     }
 
