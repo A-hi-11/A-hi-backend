@@ -1,9 +1,11 @@
 package com.example.Ahi.dto.requestDto;
 
+import com.amazonaws.util.StringUtils;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.entity.GptConfigInfo;
 import com.example.Ahi.entity.Message;
+import io.jsonwebtoken.lang.Assert;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,12 +25,25 @@ public class PromptRequestDto {
     private boolean permission;
     private String welcome_message;
     private GptConfigInfo gptConfigInfo;
-
     private ArrayList<ArrayList<Message>> example;
     private Set<String> tags;
 
-    // 예시 사용 내역 -> List로 받고 각각을 chatExample로 만든 후 각자 저장 + 두 example은 형식 통합
-    // tag -> list로 받고 각각을 tags로 만든 후 각각 저장
+    public void validate() throws IllegalArgumentException {
+        if (!"text".equals(mediaType) && !"image".equals(mediaType)) {
+            throw new IllegalArgumentException();
+        }
+        if("text".equals(mediaType)){
+            Assert.notNull(gptConfigInfo);
+        }
+
+        Assert.notEmpty(example);
+        Assert.isTrue(!StringUtils.isNullOrEmpty(member_id));
+        Assert.isTrue(!StringUtils.isNullOrEmpty(title));
+        Assert.isTrue(!StringUtils.isNullOrEmpty(description));
+        Assert.isTrue(!StringUtils.isNullOrEmpty(content));
+        Assert.isTrue(!StringUtils.isNullOrEmpty(category));
+        Assert.isTrue(!StringUtils.isNullOrEmpty(welcome_message));
+    }
 
     public Prompt toPrompt(Member member, LocalDateTime now){
         return Prompt.builder()

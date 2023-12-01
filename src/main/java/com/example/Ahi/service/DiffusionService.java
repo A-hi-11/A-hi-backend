@@ -12,6 +12,7 @@ import com.example.Ahi.repository.ChatRepository;
 import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
+import io.jsonwebtoken.lang.Assert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -42,13 +43,13 @@ public class DiffusionService {
     private final ChatRepository chatRepository;
 
     public ModelResponseDto getDiffusion(ModelRequestDto modelRequestDto) {
+        modelRequestDto.validate();
         String question = "";
 
         Member member = memberRepository.findById(modelRequestDto.getMember_id()).orElse(null);
         // 잘못된 멤버 아이디의 경우 에러 처리
-        if(member == null){
-            return null;
-        }
+        Assert.notNull(member);
+
         ChatRoom chat_room = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
         // 채팅방이 없는 경우 생성해줌, 프롬프트는 null
         if(chat_room == null){
@@ -84,13 +85,14 @@ public class DiffusionService {
         return modelResponseDto;
     }
     public ModelResponseDto getDiffusionByPrompt(long prompt_id, ModelRequestDto modelRequestDto) {
+        modelRequestDto.validate();
         Member member = memberRepository.findById(modelRequestDto.getMember_id()).orElse(null);
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         String question = "";
         // 잘못된 멤버나 프롬프트 id의 경우 에러 처리
-        if(member == null || prompt == null){
-            return null;
-        }
+        Assert.notNull(prompt);
+        Assert.notNull(member);
+
         ChatRoom chat_room = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
         // 채팅방이 없는 경우 생성해줌
         if(chat_room == null){
