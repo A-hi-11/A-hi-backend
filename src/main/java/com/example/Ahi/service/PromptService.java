@@ -9,6 +9,7 @@ import com.example.Ahi.dto.responseDto.PromptResponseDto;
 import com.example.Ahi.repository.*;
 import com.example.Ahi.entity.Message;
 import io.jsonwebtoken.lang.Assert;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -54,30 +56,35 @@ public class PromptService {
         return "create successfully!";
     }
 
-    public ArrayList<PromptListResponseDto> getPromptList(String sort, String search) {
+    public List<PromptListResponseDto> getPromptList(String sort, String category, String search) {
         Sort sortObj;
-        if ("likes".equals(sort)) {
-            sortObj = Sort.by(Sort.Direction.DESC, "likes");
-        } else if ("time".equals(sort)) {
-            sortObj = Sort.by(Sort.Direction.DESC, "create_time");
-        } else if ("category".equals(sort)) {
-            sortObj = Sort.by(Sort.Direction.ASC, "category");
+        if ("time".equals(sort)) {
+            sortObj = Sort.by(Sort.Direction.DESC, "updateTime");
         } else {
             sortObj = Sort.unsorted();
         }
 
         Specification<Prompt> spec = (root, query, cb) -> {
-            if (search != null) {
-                Predicate nameLike = cb.like(root.get("title"), "%" + search + "%");
-//                Predicate tagLike = cb.like(root.get("tag"), "%" + search + "%");
-                return cb.or(nameLike);
-            } else {
-                return cb.conjunction();
+            List<Predicate> predicates = new ArrayList<>();
+            if (!StringUtils.isEmpty(search)) {
+                Predicate titleLike = cb.like(root.get("title"), "%" + search + "%");
+                predicates.add(titleLike);
             }
+            if (!StringUtils.isEmpty(category)) {
+                Predicate categoryEqual = cb.equal(root.get("category"), category);
+                predicates.add(categoryEqual);
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         List<Prompt> promptList = promptRepository.findAll(spec, sortObj);
-        return getPromptListResponseDtos(promptList);
+        List<PromptListResponseDto> promptListResponseDtos = getPromptListResponseDtos(promptList);
+        if("likes".equals(sort)){
+            promptListResponseDtos = promptListResponseDtos.stream()
+                    .sorted(Comparator.comparingLong(PromptListResponseDto::getLikes).reversed())
+                    .toList();;
+        }
+        return promptListResponseDtos;
     }
 
     public PromptResponseDto getPrompt(long prompt_id, String member_id){
@@ -137,7 +144,7 @@ public class PromptService {
         Member member = memberRepository.findById(member_id).orElse(null);
         Assert.notNull(member);
         List<Prompt> promptList = promptRepository.findByMember(member);
-        return getPromptListResponseDtos(promptList);
+        return (ArrayList<PromptListResponseDto>) getPromptListResponseDtos(promptList);
     }
 
     public String addPreference(PreferenceRequestDto preferenceRequestDto){
@@ -179,7 +186,7 @@ public class PromptService {
         prompt.setPermission(promptRequestDto.isPermission());
         prompt.setWelcome_message(promptRequestDto.getWelcome_message());
         prompt.setMediaType(promptRequestDto.getMediaType());
-        prompt.setUpdate_time(LocalDateTime.now());
+        prompt.setUpdateTime(LocalDateTime.now());
         promptRepository.save(prompt);
         ;
         tagsRepository.deleteByPrompt(prompt);
@@ -211,8 +218,8 @@ public class PromptService {
         return "정상적으로 삭제되었습니다.";
     }
 
-    private ArrayList<PromptListResponseDto> getPromptListResponseDtos(List<Prompt> promptList) {
-        ArrayList<PromptListResponseDto> responseList = new ArrayList<>();
+    private List<PromptListResponseDto> getPromptListResponseDtos(List<Prompt> promptList) {
+        List<PromptListResponseDto> responseList = new ArrayList<>();
         for (Prompt prompt : promptList) {
             List<Preference> likes = preferenceRepository.findByPromptAndStatus(prompt, "like");
             List<Preference> dislikes = preferenceRepository.findByPromptAndStatus(prompt, "dislike");

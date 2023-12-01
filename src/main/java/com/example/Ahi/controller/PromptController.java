@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("prompt")
@@ -23,10 +24,11 @@ public class PromptController {
     }
 
     @GetMapping("/view")
-    public ResponseEntity<ArrayList<PromptListResponseDto>> getPromptList(
+    public ResponseEntity<List<PromptListResponseDto>> getPromptList(
             @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) String search) {
-        ArrayList<PromptListResponseDto> promptList = promptService.getPromptList(sort, search);
+        List<PromptListResponseDto> promptList = promptService.getPromptList(sort, category, search);
         return ResponseEntity.ok(promptList);
     }
 

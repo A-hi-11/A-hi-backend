@@ -31,8 +31,10 @@ public class Prompt {
     private String category;
     private boolean permission;
     private String welcome_message;
+    @Column(name = "create_time")
     private LocalDateTime create_time;
-    private LocalDateTime update_time;
+    @Column(name = "update_time")
+    private LocalDateTime updateTime;
 
     public PromptListResponseDto toPromptListResponseDto(long comments, long likes, long dislikes){
         return PromptListResponseDto.builder()
@@ -44,7 +46,7 @@ public class Prompt {
                 .mediaType(mediaType)
                 .category(category)
                 .create_time(create_time)
-                .update_time(update_time)
+                .update_time(updateTime)
                 .comments(comments)
                 .likes(likes)
                 .dislikes(dislikes)
@@ -58,7 +60,7 @@ public class Prompt {
                 .mediaType(mediaType)
                 .category(category)
                 .permission(permission)
-                .update_time(update_time)
+                .update_time(updateTime)
                 .create_time(create_time)
                 .prompt_id(prompt_id)
                 .content(content)
