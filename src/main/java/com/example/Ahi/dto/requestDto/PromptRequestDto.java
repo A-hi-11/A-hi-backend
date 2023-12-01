@@ -56,7 +56,7 @@ public class PromptRequestDto {
                 .permission(permission)
                 .welcome_message(welcome_message)
                 .create_time(now)
-                .update_time(now)
+                .updateTime(now)
                 .build();
     }
 
