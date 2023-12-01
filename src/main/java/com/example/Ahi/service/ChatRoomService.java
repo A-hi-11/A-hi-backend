@@ -88,8 +88,9 @@ public class ChatRoomService {
             response.setCreate_time(chatRoom.getCreate_time());
             response.setChat_room_name(chatRoom.getChat_room_name());
             response.setModel_type(chatRoom.getModel_type());
-            String last_message = chatRepository.findLastMessage(chatRoom.getChat_room_id()).get();
-            response.setLast_message(last_message);
+            Optional<String> last_message = chatRepository.findLastMessage(chatRoom.getChat_room_id());
+            if(last_message.isPresent())
+                response.setLast_message(last_message.get());
 
             lists.add(response);
         }

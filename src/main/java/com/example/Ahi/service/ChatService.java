@@ -7,6 +7,8 @@ import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatItemResponse;
 import com.example.Ahi.repository.ChatRepository;
 import com.example.Ahi.repository.ChatRoomRepository;
+import exception.AhiException;
+import exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +43,7 @@ public class ChatService {
 
         if(chats.isEmpty()){
             //TODO: 예외처리
+
             ChatItemResponse item = new ChatItemResponse();
             item.setContent(null);
         }
