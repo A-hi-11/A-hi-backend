@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(new ExceptionDto(e.getErrorCode()));
-
+    }
     @ExceptionHandler(HttpServerErrorException.class)
     public ResponseEntity<String> handleHttpServerErrorException(HttpServerErrorException ex) {
         return ResponseEntity
