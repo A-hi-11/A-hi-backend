@@ -1,7 +1,7 @@
 package com.example.Ahi.config;
 
-import exception.AhiException;
-import exception.ExceptionDto;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ExceptionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(new ExceptionDto(e.getErrorCode()));
+    }
 
     @ExceptionHandler(HttpServerErrorException.class)
     public ResponseEntity<String> handleHttpServerErrorException(HttpServerErrorException ex) {

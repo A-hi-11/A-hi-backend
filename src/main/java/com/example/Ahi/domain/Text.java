@@ -19,6 +19,8 @@ public class Text {
     @JoinColumn(name="chat_room_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ChatRoom chat_room_id;
+
+    @Column(length = 10000)
     private String content;
     private boolean isQuestion;
     private LocalDateTime create_time;

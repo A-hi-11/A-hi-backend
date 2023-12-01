@@ -7,8 +7,10 @@ import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatItemResponse;
 import com.example.Ahi.repository.ChatRepository;
 import com.example.Ahi.repository.ChatRoomRepository;
-import exception.AhiException;
-import exception.ErrorCode;
+import com.knuddels.jtokkit.Encodings;
+import com.knuddels.jtokkit.api.Encoding;
+import com.knuddels.jtokkit.api.EncodingRegistry;
+import com.knuddels.jtokkit.api.ModelType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -71,11 +73,25 @@ public class ChatService {
                 Message message = new Message();
                 if (chat.isQuestion())message.setRole("user");
                 else message.setRole("assistant");
-
                 message.setContent(chat.getContent());
                 messages.add(message);
             }
+
+            System.out.println("이전대화"+getTokenSize(messages.toString()));
+
+            while(getTokenSize(messages.toString())>4000){
+                messages.remove(1);
+            }
         }
         return messages;
+    }
+
+
+    public int getTokenSize(String text) {
+        EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
+        Encoding enc = registry.getEncodingForModel(ModelType.GPT_3_5_TURBO);
+
+        List<Integer> encoded = enc.encode(text);
+        return encoded.size();
     }
 }

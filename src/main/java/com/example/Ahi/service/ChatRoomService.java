@@ -6,6 +6,8 @@ import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.responseDto.ChatRoomResponse;
 import com.example.Ahi.repository.*;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -81,6 +83,10 @@ public class ChatRoomService {
         List<ChatRoom> chatRooms = chatRoomRepository.findByMemberId(member_id);
         List<ChatRoomResponse> lists = new ArrayList<>();
 
+        if (chatRooms == null || chatRooms.isEmpty()) {
+            throw new AhiException(ErrorCode.GPT_TOKEN_ERROR);
+        }
+
 
         for (ChatRoom chatRoom:chatRooms){
             ChatRoomResponse response = new ChatRoomResponse();
@@ -91,7 +97,6 @@ public class ChatRoomService {
             Optional<String> last_message = chatRepository.findLastMessage(chatRoom.getChat_room_id());
             if(last_message.isPresent())
                 response.setLast_message(last_message.get());
-
             lists.add(response);
         }
 

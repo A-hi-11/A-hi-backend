@@ -9,6 +9,8 @@ import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
 import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatgptResponseDto;
 import com.example.Ahi.entity.GptConfigInfo;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
@@ -164,10 +166,9 @@ public class ChatgptService {
         List<Message> messages = chatService.memorizedChat(chat_room_id);
         messages.add(new Message("user", input));
 
-        while (getTokenSize(messages.toString())>4000){
-            messages.remove(1);
+        if(getTokenSize(messages.toString())>4000){
+            throw new AhiException(ErrorCode.INVALID_PERMISSION);
         }
-        //System.out.println(getTokenSize(messages.toString())+"/n"+messages);
         return messages;
     }
 
