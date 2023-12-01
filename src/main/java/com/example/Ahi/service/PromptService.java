@@ -32,13 +32,13 @@ public class PromptService {
     private final ConfigInfoRepository configInfoRepository;
 
     public String create(PromptRequestDto promptRequestDto){
+        promptRequestDto.validate();
         Member member = memberRepository.findById(promptRequestDto.getMember_id()).orElse(null);
+        Assert.notNull(member);
         // domain prompt 생성
         LocalDateTime now = LocalDateTime.now();
         Prompt prompt = promptRequestDto.toPrompt(member, now);
-        if(prompt.getMember() == null){
-            return "member가 비었습니다.";
-        }
+
         // prompt 저장 코드
         promptRepository.save(prompt);
         if(promptRequestDto.getMediaType().equals("text")){
@@ -47,6 +47,7 @@ public class PromptService {
 
         // tag 저장 코드
         saveTags(promptRequestDto.getTags(), prompt);
+
         // example 저장 코드
         saveChatExample(promptRequestDto.getExample(), prompt);
 
@@ -80,12 +81,9 @@ public class PromptService {
     }
 
     public PromptResponseDto getPrompt(long prompt_id, String member_id){
-//        Prompt prompt = promptRepository.findById(prompt_id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프롬프트입니다."));
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
-        Assert.notNull(prompt, "존재하지 않는 프롬프트입니다");
-//        if(prompt == null){
-//            return null;
-//        }
+        Assert.notNull(prompt);
+
         PromptResponseDto promptResponseDto = prompt.toPromptResponseDto();
 
         // 태그 넣기
@@ -136,20 +134,19 @@ public class PromptService {
         return promptResponseDto;
     }
     public ArrayList<PromptListResponseDto> getMyList(String member_id) {
-        Optional<Member> member = memberRepository.findById(member_id);
-        if(member.isEmpty()){
-            return null;
-        }
-        List<Prompt> promptList = promptRepository.findByMember(member.get());
+        Member member = memberRepository.findById(member_id).orElse(null);
+        Assert.notNull(member);
+        List<Prompt> promptList = promptRepository.findByMember(member);
         return getPromptListResponseDtos(promptList);
     }
 
     public String addPreference(PreferenceRequestDto preferenceRequestDto){
+        preferenceRequestDto.validate();
         Prompt prompt = promptRepository.findById(preferenceRequestDto.getPrompt_id()).orElse(null);
         Member member = memberRepository.findById(preferenceRequestDto.getMember_id()).orElse(null);
-        if (prompt == null || member == null){
-            return "프롬프트 혹은 회원이 존재하지 않습니다.";
-        }
+        Assert.notNull(prompt);
+        Assert.notNull(member);
+
         List<Preference> preferenceList =  preferenceRepository.findByMemberAndPrompt(member, prompt);
         if(preferenceList.isEmpty()){
             Preference newPreference =
@@ -171,20 +168,20 @@ public class PromptService {
 
     @Transactional
     public String modifyPrompt(Long prompt_id, PromptRequestDto promptRequestDto){
+        promptRequestDto.validate();
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
-        if (prompt != null) {
-            prompt.setTitle(promptRequestDto.getTitle());
-            prompt.setDescription(promptRequestDto.getDescription());
-            prompt.setCategory(promptRequestDto.getCategory());
-            prompt.setContent(promptRequestDto.getContent());
-            prompt.setPermission(promptRequestDto.isPermission());
-            prompt.setWelcome_message(promptRequestDto.getWelcome_message());
-            prompt.setMediaType(promptRequestDto.getMediaType());
-            prompt.setUpdate_time(LocalDateTime.now());
-            promptRepository.save(prompt);
-        } else {
-            return "존재하지 않는 프롬프트입니다.";
-        };
+        Assert.notNull(prompt);
+
+        prompt.setTitle(promptRequestDto.getTitle());
+        prompt.setDescription(promptRequestDto.getDescription());
+        prompt.setCategory(promptRequestDto.getCategory());
+        prompt.setContent(promptRequestDto.getContent());
+        prompt.setPermission(promptRequestDto.isPermission());
+        prompt.setWelcome_message(promptRequestDto.getWelcome_message());
+        prompt.setMediaType(promptRequestDto.getMediaType());
+        prompt.setUpdate_time(LocalDateTime.now());
+        promptRepository.save(prompt);
+        ;
         tagsRepository.deleteByPrompt(prompt);
         chatExampleRepository.deleteByPrompt(prompt);
         // tag 저장 코드
@@ -199,6 +196,8 @@ public class PromptService {
     @Transactional
     public String deletePrompt(Long prompt_id){
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
+        Assert.notNull(prompt);
+
         tagsRepository.deleteByPrompt(prompt);
         chatExampleRepository.deleteByPrompt(prompt);
         commentRepository.deleteByPromptId(prompt);
@@ -246,7 +245,7 @@ public class PromptService {
         ArrayList<CommentListResponse> result = new ArrayList<>();
         for(Comment comment: list){
             Member member = memberRepository.findById(comment.getMember_id().getMember_id()).orElse(null);
-            assert member != null;
+            Assert.notNull(member);
             result.add(comment.toCommentListResponse(member));
         }
         return result;
