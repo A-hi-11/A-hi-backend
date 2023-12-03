@@ -38,6 +38,7 @@ public class ChatService {
 
     public List<ChatItemResponse> show_chatList(Long chat_room_id){
         List<Text> chats = chatRepository.findByChatRoomId(chat_room_id);
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
 
         List<ChatItemResponse> chatItemList = new ArrayList<>();
 
@@ -52,6 +53,11 @@ public class ChatService {
                 ChatItemResponse item = new ChatItemResponse();
                 item.setContent(chat.getContent());
                 item.setQuestion(chat.isQuestion());
+                if (!chat.isQuestion() && chatRoom.get().getModel_type().equals("image"))
+                    item.setImage(true);
+                else{
+                    item.setImage(false);
+                }
                 chatItemList.add(item);
             }
 
