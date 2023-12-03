@@ -179,8 +179,15 @@ public class OauthService {
         NaverProfile profile = findNaverProfile(naverToken.getAccessToken());
         String response = saveNaverMember(profile);
 
-        return response;
+        String member_id = JwtUtil.extractMember(response,secretKey);
 
+        Member member = memberRepository.findById(member_id).get();
+
+        return "http://localhost:3000?member_id=" +
+                member.getMember_id() +
+                "&nickname=" + member.getNickname() +
+                "&profile_image=" + member.getProfile_image() +
+                "&jwt=" + response;
     }
 
     public NaverProfile findNaverProfile(String token) {
