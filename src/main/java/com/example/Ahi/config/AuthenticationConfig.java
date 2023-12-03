@@ -75,11 +75,6 @@ public class AuthenticationConfig {
                                 .baseUri(gRedirectUrl)
                                 .baseUri(nRedirectUrl)
                         )
-//                        .authorizationEndpoint(authorizationEndpoint ->
-//                                authorizationEndpoint
-//                                        .baseUri("/naver/login")
-
-
                 )
                 .addFilterBefore(new JwtFilter(memberService,secretKey), UsernamePasswordAuthenticationFilter.class)
                 ;
