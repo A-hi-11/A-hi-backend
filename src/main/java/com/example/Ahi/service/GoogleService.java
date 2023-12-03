@@ -36,6 +36,7 @@ public class GoogleService {
 
         if(member == null){
             member = googleProfile.toMember();
+            member.setIsOAuth(true);
             memberRepository.save(member);
         }
         // jwt 생성 후 리디렉션 uri 와 함께 리턴
