@@ -30,6 +30,7 @@ public class Prompt {
     private String mediaType;
     private String category;
     private boolean permission;
+    @Column(length = 65535)
     private String welcome_message;
     @Column(name = "create_time")
     private LocalDateTime create_time;
