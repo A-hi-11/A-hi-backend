@@ -58,14 +58,14 @@ public class AuthenticationConfig {
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/**").permitAll()
-                                .requestMatchers("/memberCheck").authenticated()
-//                                //TODO: 배포 후 설정
-//                                .requestMatchers("/user/signin","user/signup").permitAll()
-//                                .requestMatchers(HttpMethod.POST, "/**").authenticated()
-//                                .requestMatchers(HttpMethod.GET, "/**").authenticated()
-//                                .requestMatchers(HttpMethod.PUT, "/**").authenticated()
-//                                .requestMatchers(HttpMethod.DELETE, "/**").authenticated()
+                                //TODO: 배포 후 설정
+                                .requestMatchers("/user/signin","user/signup","/user/mail","/google-login","/user/mail/check","/naver-login").permitAll()
+                                .requestMatchers("/prompt/view","/prompt/view/info").permitAll()
+                                .requestMatchers("/prompt/comment/read").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/**").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/**").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/**").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/**").authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(redirection-> redirection
