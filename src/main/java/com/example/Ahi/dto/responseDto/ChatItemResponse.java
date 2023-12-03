@@ -6,4 +6,5 @@ import lombok.Data;
 public class ChatItemResponse {
     private String content;
     private boolean isQuestion;
+    private boolean isImage;
 }
