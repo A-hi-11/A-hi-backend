@@ -100,6 +100,7 @@ public class OauthService {
                     .password("KAKAO")
                     .nickname(profile.getKakao_account().getProfile().getNickname())
                     .profile_image(profile.getKakao_account().getProfile().getProfile_image_url())
+                    .isOAuth(true)
                     .build();
 
             memberRepository.save(member);
@@ -183,11 +184,7 @@ public class OauthService {
 
         Member member = memberRepository.findById(member_id).get();
 
-        return "http://localhost:3000?member_id=" +
-                member.getMember_id() +
-                "&nickname=" + member.getNickname() +
-                "&profile_image=" + member.getProfile_image() +
-                "&jwt=" + response;
+        return null;
     }
 
     public NaverProfile findNaverProfile(String token) {
@@ -235,6 +232,7 @@ public class OauthService {
                     .password("NAVER")
                     .nickname(profile.getResponse().getNickname())
                     .profile_image(profile.getResponse().getProfile_image())
+                    .isOAuth(true)
                     .build();
 
             memberRepository.save(member);
