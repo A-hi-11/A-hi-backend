@@ -47,12 +47,12 @@ public class ChatgptService {
     private final String url = "https://api.openai.com/v1/chat/completions";
 
 
-    public ChatgptResponse getGpt(Long chatroom_id, String request, GptConfigInfo gptConfigInfo){
+    public ChatgptResponse getGpt(String memberId,Long chatroom_id, String request, GptConfigInfo gptConfigInfo){
         ChatgptResponse response = new ChatgptResponse();
         ChatgptRequestDto requestDto = new ChatgptRequestDto();
 
         // 채팅방 찾기(없으면 생성)
-        Long chat_room_id = chatRoomService.find_chatroom("member_id","gpt-3.5-turbo",chatroom_id);
+        Long chat_room_id = chatRoomService.find_chatroom(memberId,"gpt-3.5-turbo",chatroom_id);
         //요청 메세지
         requestDto.setMessages(compositeMessage(request,chat_room_id));
 
@@ -90,7 +90,7 @@ public class ChatgptService {
 
 
 
-    public ChatgptResponse useGpt(Long prompt_id, ChatgptRequest request){
+    public ChatgptResponse useGpt(String memberId,Long prompt_id, ChatgptRequest request){
         //1. prompt찾아 "user" role로 세팅하기
         //2. 대화내역 찾아 추가하기 -> 없다면 새로운 채팅방으로 만들어 줘야함
         //3. 전송하기
@@ -99,7 +99,7 @@ public class ChatgptService {
         ChatgptRequestDto requestDto = new ChatgptRequestDto();
 
 
-        Long chat_room_id = chatRoomService.find_promptroom("member_id",prompt_id);
+        Long chat_room_id = chatRoomService.find_promptroom(memberId,prompt_id);
 
         List<Message> messages = compositeMessage(request.getPrompt(),chat_room_id);
         messages.add(0,setPrompt(prompt_id));

@@ -8,6 +8,7 @@ import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,27 +22,37 @@ public class MyPageController {
     private final MyPageService myPageService;
 
     @PutMapping("/password/update")
-    public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateRequest new_password){
+    public ResponseEntity<String> updatePassword(Authentication authentication,
+                                                 @RequestBody PasswordUpdateRequest new_password){
+
+        String memberId = authentication.getName();
         return ResponseEntity.ok(myPageService.updatePassword(new_password.getNew_password()));
     }
 
     @PutMapping("/password/check")
-    public ResponseEntity<String> checkPassword(@RequestBody PasswordCheckRequest cur_password){
+    public ResponseEntity<String> checkPassword(Authentication authentication,
+                                                @RequestBody PasswordCheckRequest cur_password){
+        String memberId = authentication.getName();
         return ResponseEntity.ok(myPageService.checkPassword(cur_password.getCur_password()));
     }
 
     @PutMapping("/image")
-    public ResponseEntity<String> updateProfileImg(@RequestPart("profileImage") MultipartFile imgFile){
+    public ResponseEntity<String> updateProfileImg(Authentication authentication,
+                                                   @RequestPart("profileImage") MultipartFile imgFile){
+        String memberId = authentication.getName();
         return ResponseEntity.ok(myPageService.updateProfileImg(imgFile));
     }
 
     @PutMapping("/nickname")
-    public ResponseEntity<String> updateNickname(@RequestBody NicknameRequest new_nickname){
+    public ResponseEntity<String> updateNickname(Authentication authentication,
+                                                 @RequestBody NicknameRequest new_nickname){
+        String memberId = authentication.getName();
         return ResponseEntity.ok(myPageService.updateNickname(new_nickname.getNew_nickname()));
     }
 
     @GetMapping("/likes")
-    public ResponseEntity<List<PromptListResponseDto>> getLikedPrompt() {
+    public ResponseEntity<List<PromptListResponseDto>> getLikedPrompt(Authentication authentication) {
+        String memberId = authentication.getName();
         ArrayList<PromptListResponseDto> likedPromptList = myPageService.getLikedPrompt();
         return ResponseEntity.ok(likedPromptList);
     }

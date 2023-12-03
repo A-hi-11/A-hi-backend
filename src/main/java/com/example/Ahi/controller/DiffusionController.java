@@ -7,6 +7,7 @@ import com.example.Ahi.dto.responseDto.ModelResponseDto;
 import com.example.Ahi.service.DiffusionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,13 +20,17 @@ public class DiffusionController {
     private DiffusionService diffusionService;
 
     @PostMapping("/diffusion")
-    public ResponseEntity<ModelResponseDto> getDiffusion(@RequestBody ModelRequestDto prompt) {
+    public ResponseEntity<ModelResponseDto> getDiffusion(Authentication authentication,
+                                                         @RequestBody ModelRequestDto prompt) {
+        String memberId = authentication.getName();
         return ResponseEntity.ok(diffusionService.getDiffusion(prompt));
     }
 
     @PostMapping("/diffusion/{prompt_id}")
-    public ResponseEntity<ModelResponseDto> getDiffusionByPrompt(@PathVariable long prompt_id,
+    public ResponseEntity<ModelResponseDto> getDiffusionByPrompt(Authentication authentication,
+                                                                 @PathVariable long prompt_id,
                                                                    @RequestBody ModelRequestDto prompt) {
+        String memberId = authentication.getName();
         return ResponseEntity.ok(diffusionService.getDiffusionByPrompt(prompt_id, prompt));
     }
 }
