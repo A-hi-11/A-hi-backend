@@ -47,8 +47,14 @@ public class OauthController {
 
     @GetMapping("/naver/redirect")
     public ResponseEntity<String> naverLogin(@RequestParam("code") String code) {
-        String response = oauthService.naverLogin(code);
-        return ResponseEntity.ok("네이버 로그인+회원가입 성공 : " + response);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(oauthService.naverLogin(code)));
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+    }
+
+    @GetMapping( "/naver-login")
+    public String redirectToNaver() {
+        return "redirect:/oauth2/authorization/naver";
     }
 
     @GetMapping("/google/redirect")

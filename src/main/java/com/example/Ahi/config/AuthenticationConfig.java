@@ -48,6 +48,9 @@ public class AuthenticationConfig {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String gRedirectUrl;
 
+    @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
+    private String nRedirectUrl;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -70,7 +73,12 @@ public class AuthenticationConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(redirection-> redirection
                                 .baseUri(gRedirectUrl)
+                                .baseUri(nRedirectUrl)
                         )
+//                        .authorizationEndpoint(authorizationEndpoint ->
+//                                authorizationEndpoint
+//                                        .baseUri("/naver/login")
+
 
                 )
                 .addFilterBefore(new JwtFilter(memberService,secretKey), UsernamePasswordAuthenticationFilter.class)
