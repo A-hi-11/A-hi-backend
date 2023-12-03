@@ -1,15 +1,13 @@
 package com.example.Ahi.service;
 
 import com.example.Ahi.config.ChatgptConfig;
-import com.example.Ahi.domain.ChatRoom;
-import com.example.Ahi.domain.Member;
-import com.example.Ahi.domain.Prompt;
-import com.example.Ahi.domain.Text;
+import com.example.Ahi.domain.*;
 import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
 import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatgptResponseDto;
 import com.example.Ahi.entity.GptConfigInfo;
 import com.example.Ahi.repository.ChatRoomRepository;
+import com.example.Ahi.repository.ConfigInfoRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
 import com.knuddels.jtokkit.Encodings;
@@ -39,6 +37,7 @@ public class ChatgptService {
     private final ChatRoomService chatRoomService;
     private final ChatService chatService;
     private final PromptRepository promptRepository;
+    private final ConfigInfoRepository configInfoRepository;
     @Autowired
     ChatgptConfig config;
 
@@ -51,8 +50,10 @@ public class ChatgptService {
         ChatgptResponse response = new ChatgptResponse();
         ChatgptRequestDto requestDto = new ChatgptRequestDto();
 
+        String model_type = gptConfigInfo.getModel_name();
+
         // 채팅방 찾기(없으면 생성)
-        Long chat_room_id = chatRoomService.find_chatroom(memberId,"gpt-3.5-turbo",chatroom_id);
+        Long chat_room_id = chatRoomService.find_chatroom(memberId,model_type,chatroom_id);
         //요청 메세지
         requestDto.setMessages(compositeMessage(request,chat_room_id));
 
@@ -100,7 +101,17 @@ public class ChatgptService {
 
 
         Long chat_room_id = chatRoomService.find_promptroom(memberId,prompt_id);
-
+        Optional<ConfigInfo> configInfo = configInfoRepository.findByPromptId(prompt_id);
+        if(configInfo.isPresent()){
+            ConfigInfo config = configInfo.get();
+            requestDto.setModel(config.getModel_name());
+            requestDto.setTemperature((double) config.getTemperature());
+            requestDto.setMaxTokens(config.getMaximum_length().intValue());
+            requestDto.setStop_sequences(config.getStop_sequence());
+            requestDto.setTopP((double) config.getTop_p());
+            requestDto.setFrequency_penalty((double) config.getFrequency_penalty());
+            requestDto.setPresence_penalty((double) config.getPresence_penalty());
+        }
         List<Message> messages = compositeMessage(request.getPrompt(),chat_room_id);
         messages.add(0,setPrompt(prompt_id));
         requestDto.setMessages(messages);
@@ -150,9 +161,9 @@ public class ChatgptService {
     public HttpEntity<ChatgptRequestDto> compositeRequest(ChatgptRequestDto requestDto){
         HttpHeaders headers = config.gptHeader();
         //TODO: config클래스에 분리하기
-        ChatgptRequestDto body = config.gptBody();
+        //ChatgptRequestDto body = config.gptBody();
 
-        requestDto.setModel("gpt-3.5-turbo");
+        //requestDto.setModel("gpt-3.5-turbo");
 
         return new HttpEntity<>(requestDto, headers);
     }
