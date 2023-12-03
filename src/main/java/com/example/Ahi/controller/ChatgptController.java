@@ -22,7 +22,9 @@ public class ChatgptController {
     private final ChatgptService chatgptService;
 
     @PostMapping("/gpt/{chat_room_id}")
-    public ChatgptResponse getGpt(Authentication authentication, @PathVariable("chat_room_id") Long chat_room_id, @RequestBody ChatgptRequest request){
+    public ChatgptResponse getGpt(Authentication authentication,
+                                  @PathVariable("chat_room_id") Long chat_room_id,
+                                  @RequestBody ChatgptRequest request){
         String memberId = authentication.getName();
         return chatgptService.getGpt(memberId,chat_room_id,request.getPrompt(), request.getGptConfigInfo());
     }

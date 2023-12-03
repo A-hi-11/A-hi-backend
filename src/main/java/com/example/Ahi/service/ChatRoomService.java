@@ -25,7 +25,7 @@ public class ChatRoomService {
 
 
     public Long find_chatroom(String member_id, String model_type, Long chatroom_id){
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(member_id);
         model_type = "gpt-3.5-turbo";
 
         Optional<ChatRoom> exists_chatRoom = chatRoomRepository.findById(chatroom_id);
@@ -49,7 +49,7 @@ public class ChatRoomService {
     }
 
     public Long find_promptroom(String member_id, Long prompt_id){
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(member_id);
         Optional<Prompt> prompt = promptRepository.findById(prompt_id);
         //String model_type = configInfoRepository.findByPromptId(prompt_id).get().getModel_name();
 
@@ -76,7 +76,7 @@ public class ChatRoomService {
     }
 
     public List<ChatRoomResponse> roomList(Member member){
-        String member_id = "test@gmail.com";
+        String member_id = member.getMember_id();
         //member = memberRepository.findById(member_id).get();
         List<ChatRoom> chatRooms = chatRoomRepository.findByMemberId(member_id);
         List<ChatRoomResponse> lists = new ArrayList<>();
