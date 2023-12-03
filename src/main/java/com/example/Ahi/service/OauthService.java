@@ -184,7 +184,12 @@ public class OauthService {
 
         Member member = memberRepository.findById(member_id).get();
 
-        return null;
+        return "http://localhost:3000?member_id=" +
+                member.getMember_id() +
+                "&nickname=" + member.getNickname() +
+                "&profile_imagasdfasdfsadfe=" + member.getProfile_image() +
+                "&isOAuth=" + member.getIsOAuth() +
+                "&jwt=" + response;
     }
 
     public NaverProfile findNaverProfile(String token) {
