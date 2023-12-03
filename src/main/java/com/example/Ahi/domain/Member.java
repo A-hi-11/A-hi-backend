@@ -19,6 +19,7 @@ public class Member {
     private String nickname;
     private LocalDateTime last_update_time;
     private String profile_image;
+    private Boolean isOAuth;
 
     public Member(){
 
