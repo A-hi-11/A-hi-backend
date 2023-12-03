@@ -64,13 +64,10 @@ public class AuthenticationConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 //TODO: 배포 후 설정
-                                .requestMatchers("/user/signin","user/signup","/user/mail","/google-login","/user/mail/check","/naver-login").permitAll()
+                                .requestMatchers("naver/redirect","google/redirect","/user/signin","user/signup","/user/mail","/google-login","/user/mail/check","/naver-login").permitAll()
                                 .requestMatchers("/prompt/view","/prompt/view/info").permitAll()
                                 .requestMatchers("/prompt/comment/read").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/**").authenticated()
-                                .requestMatchers(HttpMethod.GET, "/**").authenticated()
-                                .requestMatchers(HttpMethod.PUT, "/**").authenticated()
-                                .requestMatchers(HttpMethod.DELETE, "/**").authenticated()
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

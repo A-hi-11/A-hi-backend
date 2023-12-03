@@ -3,14 +3,18 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.dto.requestDto.MemberRequest;
+import com.example.Ahi.dto.responseDto.LoginResponse;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.utils.JwtUtil;
+import exception.AhiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+
+import static exception.ErrorCode.USERNAME_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -45,17 +49,20 @@ public class MemberService {
 
 
 
-    public String loginAndReturnToken(String member_id, String password){
+    public LoginResponse loginAndReturnToken(String member_id, String password){
         Optional<Member> member = memberRepository.findById(member_id);
-        String response = "";
+        LoginResponse response = new LoginResponse();
         if(member.isEmpty())
-            response = "존재하지 않는 회원입니다. 로그인에 실패하였습니다.";
+            throw new AhiException(USERNAME_NOT_FOUND);
 
         else{
-            if(member.get().getPassword().equals(password)) // 패스워드는 인코딩하여 확인 필요
-                response = JwtUtil.createJwt(member_id,secretKey,expiredMs);
-            else
-                response = "비밀번호가 일치하지 않습니다. 로그인에 실패하였습니다.";
+            if(member.get().getPassword().equals(password)) {
+                response.setMemberId(member.get().getMember_id());
+                response.setNickname(member.get().getNickname());
+                response.setProfileImg(member.get().getProfile_image());
+                response.setJwt(JwtUtil.createJwt(member_id,secretKey,expiredMs));
+            } else
+                throw new AhiException(USERNAME_NOT_FOUND);
         }
 
         return response;
