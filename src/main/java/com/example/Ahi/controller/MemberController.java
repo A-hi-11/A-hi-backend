@@ -5,6 +5,7 @@ import com.example.Ahi.dto.requestDto.EmailDto;
 import com.example.Ahi.dto.requestDto.MailCheckRequest;
 import com.example.Ahi.dto.requestDto.MemberRequest;
 import com.example.Ahi.dto.requestDto.SigninRequest;
+import com.example.Ahi.dto.responseDto.LoginResponse;
 import com.example.Ahi.service.MailService;
 import com.example.Ahi.service.MemberService;
 import com.example.Ahi.utils.MailUtil;
@@ -35,7 +36,7 @@ public class MemberController {
 
     @PostMapping("/signin")
     public ResponseEntity login(@RequestBody SigninRequest request){
-        String response = memberService.loginAndReturnToken(request.getUserId(), request.getUserPassword());
+        LoginResponse response = memberService.loginAndReturnToken(request.getUserId(), request.getUserPassword());
         return ResponseEntity.ok().body(response);
     }
 
