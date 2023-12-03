@@ -99,12 +99,15 @@ public class ChatRoomService {
     }
 
 
-    public String delete(Long chat_room_id){
+    public String delete(String memberId, Long chat_room_id){
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
         String result ="";
         if(chatRoom.isPresent()){
-            chatRoomRepository.delete(chatRoom.get());
-            result = "채팅방을 삭제하였습니다.";
+            if(chatRoom.get().getMember_id().equals(memberId)){
+                chatRoomRepository.delete(chatRoom.get());
+                result = "채팅방을 삭제하였습니다.";
+            }
+
         }
         else{
             result = "없는 채팅방입니다. 삭제에 실패하였습니다.";

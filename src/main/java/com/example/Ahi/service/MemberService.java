@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static exception.ErrorCode.USERNAME_NOT_FOUND;
+import static exception.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +53,7 @@ public class MemberService {
         Optional<Member> member = memberRepository.findById(member_id);
         LoginResponse response = new LoginResponse();
         if(member.isEmpty())
-            throw new AhiException(USERNAME_NOT_FOUND);
+            throw new AhiException(USER_NOT_FOUND);
 
         else{
             if(member.get().getPassword().equals(password)) {
@@ -62,7 +62,7 @@ public class MemberService {
                 response.setProfileImg(member.get().getProfile_image());
                 response.setJwt(JwtUtil.createJwt(member_id,secretKey,expiredMs));
             } else
-                throw new AhiException(USERNAME_NOT_FOUND);
+                throw new AhiException(USER_NOT_FOUND);
         }
 
         return response;

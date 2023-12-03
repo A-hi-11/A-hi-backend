@@ -22,10 +22,10 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PromptRepository promptRepository;
     private final MemberRepository memberRepository;
-    public CommentResponse create_comment(Long prompt_id, String context){
+    public CommentResponse create_comment(String memberId,Long prompt_id, String context){
         Comment comment = new Comment();
         Optional<Prompt> prompt = promptRepository.findById(prompt_id);
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(memberId);
         CommentResponse response = new CommentResponse();
 
         if(prompt.isPresent()){

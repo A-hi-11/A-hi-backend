@@ -36,7 +36,7 @@ public class ChatService {
 
     }
 
-    public List<ChatItemResponse> show_chatList(Long chat_room_id){
+    public List<ChatItemResponse> show_chatList(String memberId, Long chat_room_id){
         List<Text> chats = chatRepository.findByChatRoomId(chat_room_id);
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
 
