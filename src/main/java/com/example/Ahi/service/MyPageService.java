@@ -87,7 +87,7 @@ public class MyPageService {
             Member pmember = member.get();
             pmember.setProfile_image(imgUrl);
             memberRepository.save(pmember);
-            return imgUrl;
+            return pmember.getProfile_image();
         } else {
             return "해당 이메일을 가진 회원이 존재하지 않습니다.";
         }
@@ -102,7 +102,7 @@ public class MyPageService {
             Member pmember = member.get();
             pmember.setNickname(newNickname);
             memberRepository.save(pmember);
-            return "별명이 변경되었습니다.";
+            return pmember.getNickname();
         } else {
             return "해당 이메일을 가진 회원이 존재하지 않습니다.";
         }
