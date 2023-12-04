@@ -2,12 +2,13 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.domain.*;
 import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
+import com.example.Ahi.dto.requestDto.PromptListRequestDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
 import com.example.Ahi.dto.responseDto.CommentListResponse;
 import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
-import com.example.Ahi.repository.*;
 import com.example.Ahi.entity.Message;
+import com.example.Ahi.repository.*;
 import io.jsonwebtoken.lang.Assert;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.Predicate;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -56,7 +56,13 @@ public class PromptService {
         return "create successfully!";
     }
 
-    public List<PromptListResponseDto> getPromptList(String sort, String category, String search) {
+    public List<PromptListResponseDto> getPromptList(PromptListRequestDto promptListRequestDto) {
+        promptListRequestDto.validate();
+        String sort = promptListRequestDto.getSort();
+        String search = promptListRequestDto.getSearch();
+        String category = promptListRequestDto.getCategory();
+        String mediaType = promptListRequestDto.getMediaType();
+
         Sort sortObj;
         if ("time".equals(sort)) {
             sortObj = Sort.by(Sort.Direction.DESC, "updateTime");
@@ -73,6 +79,10 @@ public class PromptService {
             if (!StringUtils.isEmpty(category)) {
                 Predicate categoryEqual = cb.equal(root.get("category"), category);
                 predicates.add(categoryEqual);
+            }
+            if (!StringUtils.isEmpty(mediaType)) {
+                Predicate mediaTypeEqual = cb.equal(root.get("mediaType"), mediaType);
+                predicates.add(mediaTypeEqual);
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -178,6 +188,7 @@ public class PromptService {
         promptRequestDto.validate();
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         Assert.notNull(prompt);
+        Assert.isTrue(Objects.equals(promptRequestDto.getMember_id(), prompt.getMember().getMember_id()));
 
         prompt.setTitle(promptRequestDto.getTitle());
         prompt.setDescription(promptRequestDto.getDescription());
@@ -206,9 +217,10 @@ public class PromptService {
     }
 
     @Transactional
-    public String deletePrompt(Long prompt_id){
+    public String deletePrompt(Long prompt_id, String memberId){
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         Assert.notNull(prompt);
+        Assert.isTrue(Objects.equals(memberId, prompt.getMember().getMember_id()));
 
         tagsRepository.deleteByPrompt(prompt);
         chatExampleRepository.deleteByPrompt(prompt);

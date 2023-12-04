@@ -21,16 +21,18 @@ public class DiffusionController {
 
     @PostMapping("/diffusion")
     public ResponseEntity<ModelResponseDto> getDiffusion(Authentication authentication,
-                                                         @RequestBody ModelRequestDto prompt) {
+                                                         @RequestBody ModelRequestDto modelRequestDto) {
         String memberId = authentication.getName();
-        return ResponseEntity.ok(diffusionService.getDiffusion(prompt));
+        modelRequestDto.setMember_id(memberId);
+        return ResponseEntity.ok(diffusionService.getDiffusion(modelRequestDto));
     }
 
     @PostMapping("/diffusion/{prompt_id}")
     public ResponseEntity<ModelResponseDto> getDiffusionByPrompt(Authentication authentication,
                                                                  @PathVariable long prompt_id,
-                                                                   @RequestBody ModelRequestDto prompt) {
+                                                                   @RequestBody ModelRequestDto modelRequestDto) {
         String memberId = authentication.getName();
-        return ResponseEntity.ok(diffusionService.getDiffusionByPrompt(prompt_id, prompt));
+        modelRequestDto.setMember_id(memberId);
+        return ResponseEntity.ok(diffusionService.getDiffusionByPrompt(prompt_id, modelRequestDto));
     }
 }
