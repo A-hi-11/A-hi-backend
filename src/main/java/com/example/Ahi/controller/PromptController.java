@@ -1,6 +1,7 @@
 package com.example.Ahi.controller;
 
 import com.example.Ahi.dto.requestDto.PreferenceRequestDto;
+import com.example.Ahi.dto.requestDto.PromptListRequestDto;
 import com.example.Ahi.dto.requestDto.PromptRequestDto;
 import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.dto.responseDto.PromptResponseDto;
@@ -23,28 +24,21 @@ public class PromptController {
     public ResponseEntity<String> createPrompt(Authentication authentication,
                                                @RequestBody PromptRequestDto prompt){
         String memberId = authentication.getName();
+        prompt.setMember_id(memberId);
         return ResponseEntity.ok(promptService.create(prompt));
     }
 
-    @GetMapping("/view")
+    @PostMapping("/view")
     public ResponseEntity<List<PromptListResponseDto>> getPromptList(
-            Authentication authentication,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String search) {
-
-        String memberId = authentication.getName();
-        List<PromptListResponseDto> promptList = promptService.getPromptList(sort, category, search);
+            @RequestBody PromptListRequestDto promptListRequestDto) {
+        List<PromptListResponseDto> promptList = promptService.getPromptList(promptListRequestDto);
         return ResponseEntity.ok(promptList);
     }
 
     @GetMapping("/view/info")
-    public ResponseEntity<PromptResponseDto> getPrompt(Authentication authentication,
-                                                       @RequestParam("prompt_id") long prompt_id,
-                                                       @RequestParam("member_id") String member_id){
-
-        String memberId = authentication.getName();
-        return ResponseEntity.ok(promptService.getPrompt(prompt_id, member_id));
+    public ResponseEntity<PromptResponseDto> getPrompt(@RequestParam("prompt_id") long prompt_id,
+                                                       @RequestParam("member_id") String memberId){
+        return ResponseEntity.ok(promptService.getPrompt(prompt_id, memberId));
     }
 
     @PostMapping("/like")
@@ -52,15 +46,14 @@ public class PromptController {
                                                 @RequestBody PreferenceRequestDto preferenceRequestDto){
 
         String memberId = authentication.getName();
+        preferenceRequestDto.setMember_id(memberId);
         return ResponseEntity.ok(promptService.addPreference(preferenceRequestDto));
     }
 
-    @GetMapping("/my-page/{member_id}")
-    public ResponseEntity<ArrayList<PromptListResponseDto>> getMyPromptList(Authentication authentication,
-                                                                            @PathVariable String member_id){
-
+    @GetMapping("/my-page")
+    public ResponseEntity<ArrayList<PromptListResponseDto>> getMyPromptList(Authentication authentication){
         String memberId = authentication.getName();
-        ArrayList<PromptListResponseDto> promptList = promptService.getMyList(member_id);
+        ArrayList<PromptListResponseDto> promptList = promptService.getMyList(memberId);
         return ResponseEntity.ok(promptList);
     }
 
@@ -70,6 +63,7 @@ public class PromptController {
                                                @RequestBody PromptRequestDto promptRequestDto){
 
         String memberId = authentication.getName();
+        promptRequestDto.setMember_id(memberId);
         return ResponseEntity.ok(promptService.modifyPrompt(prompt_id, promptRequestDto));
 
     }
@@ -79,7 +73,7 @@ public class PromptController {
                                                @PathVariable Long prompt_id){
 
         String memberId = authentication.getName();
-        return ResponseEntity.ok(promptService.deletePrompt(prompt_id));
+        return ResponseEntity.ok(promptService.deletePrompt(prompt_id, memberId));
     }
 
 }

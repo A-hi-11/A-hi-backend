@@ -37,7 +37,6 @@ public class PromptRequestDto {
         }
 
         Assert.notEmpty(example);
-        Assert.isTrue(!StringUtils.isNullOrEmpty(member_id));
         Assert.isTrue(!StringUtils.isNullOrEmpty(title));
         Assert.isTrue(!StringUtils.isNullOrEmpty(description));
         Assert.isTrue(!StringUtils.isNullOrEmpty(content));

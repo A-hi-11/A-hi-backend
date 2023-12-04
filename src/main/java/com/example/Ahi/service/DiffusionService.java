@@ -23,12 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -44,12 +40,11 @@ public class DiffusionService {
 
     public ModelResponseDto getDiffusion(ModelRequestDto modelRequestDto) {
         modelRequestDto.validate();
-        String question = "";
-
         Member member = memberRepository.findById(modelRequestDto.getMember_id()).orElse(null);
         // 잘못된 멤버 아이디의 경우 에러 처리
         Assert.notNull(member);
 
+        String question = modelRequestDto.getPrompt();
         ChatRoom chat_room = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
         // 채팅방이 없는 경우 생성해줌, 프롬프트는 null
         if(chat_room == null){
@@ -61,17 +56,11 @@ public class DiffusionService {
             chat_room.setMember_id(member);
             chatRoomRepository.save(chat_room);
         }
-        else{
-            // 있을 경우 채팅방에 있는 모든 질문을 합치기
-            question = getQuestion(question, chat_room.getChat_room_id());
-        }
-         question = question.concat("," + modelRequestDto.getPrompt());
-        // 75 token을 초과하면 잘라줌
-        question = preProcessing(question);
 
         // 질문을 채팅에 저장
-        Text chat_question = makeChat(true, modelRequestDto.getPrompt(), chat_room);
+        Text chat_question = makeChat(true, question, chat_room);
         chatRepository.save(chat_question);
+
         // 대답을 채팅에 저장
         String imgUrl = getImage(question);
         Text chat_answer = makeChat(false, imgUrl, chat_room);
@@ -88,11 +77,10 @@ public class DiffusionService {
         modelRequestDto.validate();
         Member member = memberRepository.findById(modelRequestDto.getMember_id()).orElse(null);
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
-        String question = "";
         // 잘못된 멤버나 프롬프트 id의 경우 에러 처리
         Assert.notNull(prompt);
         Assert.notNull(member);
-
+        String question = modelRequestDto.getPrompt();
         ChatRoom chat_room = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
         // 채팅방이 없는 경우 생성해줌
         if(chat_room == null){
@@ -104,19 +92,9 @@ public class DiffusionService {
             chat_room.setMember_id(member);
             chatRoomRepository.save(chat_room);
         }
-        else{
-            // 있을 경우 채팅방에 있는 모든 질문을 합치기
-            question = getQuestion(question, chat_room.getChat_room_id());
-        }
-        
-        // 마지막으로 프롬프트 붙이기
-        question =  question.concat("," + prompt.getContent());
-        question = question.concat("," + modelRequestDto.getPrompt());
-        // 토큰 제한에 걸리지 않게 전처리.
-        question =  preProcessing(question);
 
         // 질문을 채팅에 저장
-        Text chat_question = makeChat(true, modelRequestDto.getPrompt(), chat_room);
+        Text chat_question = makeChat(true, question, chat_room);
         chatRepository.save(chat_question);
 
         // 대답을 채팅에 저장
@@ -153,17 +131,6 @@ public class DiffusionService {
         return s3Service.uploadDiffusionImage(response.getBody());
     }
 
-
-    private String getQuestion(String question, long chat_room_id){
-        List<Text> textArrayList = chatRepository.findByChatRoomId(chat_room_id);
-        for(Text chat : textArrayList){
-            if(chat.isQuestion()){
-                question = question.concat("," +chat.getContent());
-            }
-        }
-        return question;
-    }
-
     private Text makeChat(boolean isQuestion, String content, ChatRoom chat_room){
         Text text = new Text();
         text.setQuestion(isQuestion);
@@ -172,40 +139,5 @@ public class DiffusionService {
         text.setChat_room_id(chat_room);
 
         return text;
-    }
-
-    private int countToken(String question){
-        Pattern hangul = Pattern.compile("[가-힣]");
-        Matcher hangulMatcher = hangul.matcher(question);
-        int hangulCount = 0;
-        while (hangulMatcher.find()) hangulCount++;
-
-        Pattern english = Pattern.compile("[a-zA-Z]");
-        Matcher englishMatcher = english.matcher(question);
-        int englishCount = 0;
-        while (englishMatcher.find()) englishCount++;
-
-        Pattern etc = Pattern.compile("[^가-힣a-zA-Z]");
-        Matcher etcMatcher = etc.matcher(question);
-        int etcCount = 0;
-        while (etcMatcher.find()) etcCount++;
-
-        return hangulCount + (englishCount / 4) + etcCount;
-    }
-
-    private String preProcessing(String question){
-        int tokenCount = countToken(question);
-        System.out.println(tokenCount + question);
-
-        while(true){
-            if(tokenCount > 70){
-                question = question.substring(1);
-                tokenCount--;
-            }
-            else{
-                break;
-            }
-        }
-        return question;
     }
 }
