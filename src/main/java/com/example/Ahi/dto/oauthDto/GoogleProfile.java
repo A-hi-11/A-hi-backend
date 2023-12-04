@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import static com.example.Ahi.service.MemberService.MemberPasswordGenerator.generateRandomPassword;
+
 @Data
 public class GoogleProfile {
     public String sub;
@@ -20,7 +22,7 @@ public class GoogleProfile {
         return Member.builder()
                 .member_id(email)
                 .profile_image(picture)
-                .password("google")
+                .password(generateRandomPassword(8))
                 .last_update_time(LocalDateTime.now())
                 .nickname(name)
                 .build();
