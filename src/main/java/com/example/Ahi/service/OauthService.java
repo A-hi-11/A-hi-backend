@@ -188,7 +188,7 @@ public class OauthService {
         return "http://localhost:3000?member_id=" +
                 member.getMember_id() +
                 "&nickname=" + member.getNickname() +
-                "&profile_imagasdfasdfsadfe=" + member.getProfile_image() +
+                "&profile_image=" + member.getProfile_image() +
                 "&isOAuth=" + member.getIsOAuth() +
                 "&jwt=" + response;
     }
