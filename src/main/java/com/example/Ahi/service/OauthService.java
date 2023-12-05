@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
+import static com.example.Ahi.service.MemberService.MemberPasswordGenerator.generateRandomPassword;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 @Service
@@ -230,18 +231,20 @@ public class OauthService {
         Member member;
         String response;
 
+        //String test = generateRandomPassword(5);
+
         //없는 멤버 회원정보 저장(회원가입)
         if(Opmember.isEmpty()) {
             member = Member.builder()
                     .member_id(profile.getResponse().getEmail())
-                    .password("NAVER")
+                    .password(generateRandomPassword(8))
                     .nickname(profile.getResponse().getNickname())
                     .profile_image(profile.getResponse().getProfile_image())
                     .isOAuth(true)
                     .build();
 
             memberRepository.save(member);
-            //System.out.println(member);
+            //System.out.println(test);
 
             response = JwtUtil.createJwt(member.getMember_id(), secretKey, expiredMs);
         }
