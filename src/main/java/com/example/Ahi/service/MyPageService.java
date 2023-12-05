@@ -32,9 +32,9 @@ public class MyPageService {
     private final S3Service s3Service;
 
 
-    public String updatePassword(String newPassword){
+    public String updatePassword(String memberId,String newPassword){
 
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(memberId);
 
         //TODO:소셜로그인 한 경우 처리
         if (member.isPresent()) {
@@ -53,9 +53,9 @@ public class MyPageService {
 
     }
 
-    public String checkPassword(String curPassword){
+    public String checkPassword(String memberId, String curPassword){
 
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(memberId);
 
         if(member.isPresent()) {
             Member pmember = member.get();
@@ -64,14 +64,14 @@ public class MyPageService {
             //String enCoded = passwordEncoder.encode(pmember.getPassword());
             //System.out.println(enCoded);
             Boolean isMatches = passwordEncoder.matches(curPassword, pmember.getPassword());
-
+//            Boolean isMatches = curPassword.equals(pmember.getPassword());
             if(isMatches) { return "비밀번호가 일치합니다! 회원정보 수정이 가능합니다.";}
             else { return "비밀번호가 일치하지 않습니다. 회원정보 수정이 불가능합니다.";}
         }
         else { return "회원정보가 존재하지 않습니다.";}
     }
 
-    public String updateProfileImg(MultipartFile newImage){
+    public String updateProfileImg(String memberId, MultipartFile newImage){
 
         String imgUrl = "";
         try{
@@ -81,7 +81,7 @@ public class MyPageService {
             throw new RuntimeException("Failed to save image",e);
         }
 
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(memberId);
 
         if (member.isPresent()) {
             Member pmember = member.get();
@@ -94,9 +94,9 @@ public class MyPageService {
 
     }
 
-    public String updateNickname(String newNickname){
+    public String updateNickname(String memberId, String newNickname){
 
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(memberId);
 
         if (member.isPresent()) {
             Member pmember = member.get();
@@ -109,9 +109,9 @@ public class MyPageService {
 
     }
 
-    public ArrayList<PromptListResponseDto> getLikedPrompt() {
+    public ArrayList<PromptListResponseDto> getLikedPrompt(String memberId) {
 
-        Optional<Member> member = memberRepository.findById("test@gmail.com");
+        Optional<Member> member = memberRepository.findById(memberId);
 
         if (member.isPresent()) {
 

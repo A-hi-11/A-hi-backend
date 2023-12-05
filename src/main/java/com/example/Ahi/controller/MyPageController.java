@@ -26,34 +26,34 @@ public class MyPageController {
                                                  @RequestBody PasswordUpdateRequest new_password){
 
         String memberId = authentication.getName();
-        return ResponseEntity.ok(myPageService.updatePassword(new_password.getNew_password()));
+        return ResponseEntity.ok(myPageService.updatePassword(memberId,new_password.getNew_password()));
     }
 
     @PutMapping("/password/check")
     public ResponseEntity<String> checkPassword(Authentication authentication,
                                                 @RequestBody PasswordCheckRequest cur_password){
         String memberId = authentication.getName();
-        return ResponseEntity.ok(myPageService.checkPassword(cur_password.getCur_password()));
+        return ResponseEntity.ok(myPageService.checkPassword(memberId,cur_password.getCur_password()));
     }
 
     @PutMapping("/image")
     public ResponseEntity<String> updateProfileImg(Authentication authentication,
                                                    @RequestPart("profileImage") MultipartFile imgFile){
         String memberId = authentication.getName();
-        return ResponseEntity.ok(myPageService.updateProfileImg(imgFile));
+        return ResponseEntity.ok(myPageService.updateProfileImg(memberId,imgFile));
     }
 
     @PutMapping("/nickname")
     public ResponseEntity<String> updateNickname(Authentication authentication,
                                                  @RequestBody NicknameRequest new_nickname){
         String memberId = authentication.getName();
-        return ResponseEntity.ok(myPageService.updateNickname(new_nickname.getNew_nickname()));
+        return ResponseEntity.ok(myPageService.updateNickname(memberId, new_nickname.getNew_nickname()));
     }
 
     @GetMapping("/likes")
     public ResponseEntity<List<PromptListResponseDto>> getLikedPrompt(Authentication authentication) {
         String memberId = authentication.getName();
-        ArrayList<PromptListResponseDto> likedPromptList = myPageService.getLikedPrompt();
+        ArrayList<PromptListResponseDto> likedPromptList = myPageService.getLikedPrompt(memberId);
         return ResponseEntity.ok(likedPromptList);
     }
 
