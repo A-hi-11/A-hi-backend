@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
@@ -16,8 +18,9 @@ public class ChatExample {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long example_id;
-    @ManyToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="prompt_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Prompt prompt;
 
     @ManyToOne
