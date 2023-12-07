@@ -17,6 +17,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.example.Ahi.service.MemberService.MemberPasswordGenerator.generateRandomPassword;
@@ -240,6 +241,7 @@ public class OauthService {
                     .password(generateRandomPassword(8))
                     .nickname(profile.getResponse().getNickname())
                     .profile_image(profile.getResponse().getProfile_image())
+                    .last_update_time(LocalDateTime.now())
                     .isOAuth(true)
                     .build();
 
