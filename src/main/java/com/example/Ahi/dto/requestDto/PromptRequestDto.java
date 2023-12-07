@@ -34,6 +34,11 @@ public class PromptRequestDto {
         }
         if("text".equals(mediaType)){
             Assert.notNull(gptConfigInfo);
+            if(!gptConfigInfo.getModel_name().equals("gpt-3.5-turbo") &&
+                    !gptConfigInfo.getModel_name().equals("gpt-4")){
+                throw new IllegalArgumentException();
+            }
+
         }
 
         Assert.notEmpty(example);

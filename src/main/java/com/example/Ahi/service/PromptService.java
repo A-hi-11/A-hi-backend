@@ -51,7 +51,7 @@ public class PromptService {
         saveTags(promptRequestDto.getTags(), prompt);
 
         // example 저장 코드
-        saveChatExample(promptRequestDto.getExample(), prompt);
+        saveChatExample(promptRequestDto.getExample(), prompt, member);
 
         return "create successfully!";
     }
@@ -189,7 +189,7 @@ public class PromptService {
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         Assert.notNull(prompt);
         Assert.isTrue(Objects.equals(promptRequestDto.getMember_id(), prompt.getMember().getMember_id()));
-
+        Member member = memberRepository.findById(promptRequestDto.getMember_id()).orElse(null);
         prompt.setTitle(promptRequestDto.getTitle());
         prompt.setDescription(promptRequestDto.getDescription());
         prompt.setCategory(promptRequestDto.getCategory());
@@ -206,7 +206,7 @@ public class PromptService {
         // tag 저장 코드
         saveTags(promptRequestDto.getTags(), prompt);
         // example 저장 코드
-        saveChatExample(promptRequestDto.getExample(), prompt);
+        saveChatExample(promptRequestDto.getExample(), prompt, member);
 
 //        // configInfo 수정
 //        if(promptRequestDto.getMediaType().equals("text")){
@@ -256,10 +256,10 @@ public class PromptService {
         }
     }
 
-    private void saveChatExample(ArrayList<ArrayList<Message>> example, Prompt prompt){
+    private void saveChatExample(ArrayList<ArrayList<Message>> example, Prompt prompt, Member member){
         for(ArrayList<Message> arrayList: example){
             for(Message message: arrayList){
-                ChatExample chatExample = message.toChatExample(prompt);
+                ChatExample chatExample = message.toChatExample(prompt, member);
                 chatExampleRepository.save(chatExample);
             }
         }
