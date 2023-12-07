@@ -13,6 +13,6 @@ import java.util.Optional;
 
 public interface ConfigInfoRepository extends JpaRepository<ConfigInfo,Long> {
     @Query(value = "SELECT * from config_info WHERE prompt_id = :promptId",nativeQuery = true)
-    Optional<ConfigInfo> findByPromptId(Long promptId);
+    Optional<ConfigInfo> findByPromptId(@Param("promptId")Long promptId);
     void deleteByPromptId(Prompt prompt);
 }
