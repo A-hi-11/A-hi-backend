@@ -6,6 +6,8 @@ import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.responseDto.ChatRoomResponse;
 import com.example.Ahi.repository.*;
+import exception.AhiException;
+import exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,12 +53,16 @@ public class ChatRoomService {
     public Long find_promptroom(String member_id, Long prompt_id){
         Optional<Member> member = memberRepository.findById(member_id);
         Optional<Prompt> prompt = promptRepository.findById(prompt_id);
-        //String model_type = configInfoRepository.findByPromptId(prompt_id).get().getModel_name();
 
-        Optional<ChatRoom> promptRoom = chatRoomRepository.findAllByMemberAndPrompt(member.get().getMember_id(), prompt_id);
+        if(!prompt.isPresent()){
+            throw new AhiException(ErrorCode.DATABASE_ERROR);
+        }
+        //String model_type = configInfoRepository.findByPromptId(prompt_id).get().getModel_name();
+        System.out.println(member_id + prompt_id);
+        Optional<ChatRoom> promptRoom = chatRoomRepository.findAllByMemberAndPrompt(member_id, prompt_id);
         Long chat_room_id;
 
-        //새로 생성
+        //새로 생성-> 존재하지 않는경우
         if(!promptRoom.isPresent()){
             ChatRoom chatRoom = new ChatRoom();
             chatRoom.setCreate_time(LocalDateTime.now());
@@ -68,6 +74,7 @@ public class ChatRoomService {
             chatRoomRepository.save(chatRoom);
             chat_room_id = chatRoom.getChat_room_id();
         }
+        //존재하는 경우
         else{
             chat_room_id = promptRoom.get().getChat_room_id();
         }
