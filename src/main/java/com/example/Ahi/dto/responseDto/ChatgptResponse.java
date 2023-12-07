@@ -6,4 +6,5 @@ import lombok.Data;
 @Data
 public class ChatgptResponse {
     private String answer;
+    private Long chat_room_id;
 }

@@ -28,7 +28,7 @@ public class ChatRoomService {
 
     public Long find_chatroom(String member_id, String model_type, Long chatroom_id){
         Optional<Member> member = memberRepository.findById(member_id);
-        model_type = "gpt-3.5-turbo";
+        model_type = model_type;
 
         Optional<ChatRoom> exists_chatRoom = chatRoomRepository.findById(chatroom_id);
         Long chat_room_id;

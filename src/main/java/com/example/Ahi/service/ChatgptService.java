@@ -38,6 +38,7 @@ public class ChatgptService {
     private final ChatService chatService;
     private final PromptRepository promptRepository;
     private final ConfigInfoRepository configInfoRepository;
+    private final ChatRoomRepository chatRoomRepository;
     @Autowired
     ChatgptConfig config;
 
@@ -77,6 +78,7 @@ public class ChatgptService {
         String answer = result.getChoices().get(0).getMessage().getContent();
 
         response.setAnswer(answer);
+        response.setChat_room_id(chat_room_id);
 
 
         //채팅내역 저장
@@ -113,7 +115,7 @@ public class ChatgptService {
             requestDto.setPresence_penalty((double) config.getPresence_penalty());
         }
         List<Message> messages = compositeMessage(request.getPrompt(),chat_room_id);
-        messages.add(0,setPrompt(prompt_id));
+        //messages.add(0,setPrompt(prompt_id));
         requestDto.setMessages(messages);
 
         HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
@@ -128,6 +130,7 @@ public class ChatgptService {
         String answer = result.getChoices().get(0).getMessage().getContent();
 
         response.setAnswer(answer);
+        response.setChat_room_id(chat_room_id);
 
         //채팅내역 저장
         //사용자 발화
@@ -171,14 +174,23 @@ public class ChatgptService {
 
 
     public List<Message> compositeMessage(String input,Long chat_room_id){
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
 
         List<Message> messages = chatService.memorizedChat(chat_room_id);
+
+        //프롬프트를 이용하였다면 메세지에 포함시킴
+        if(chatRoom.isPresent() && chatRoom.get().getPrompt_id()!=null){
+            Message message = setPrompt(chatRoom.get().getPrompt_id().getPrompt_id());
+            messages.add(0,message);
+        }
+
         messages.add(new Message("user", input));
+
+        System.out.println(messages);
 
         while (getTokenSize(messages.toString())>4000){
             messages.remove(1);
         }
-        //System.out.println(getTokenSize(messages.toString())+"/n"+messages);
         return messages;
     }
 
