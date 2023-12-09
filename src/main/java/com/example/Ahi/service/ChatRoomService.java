@@ -110,7 +110,7 @@ public class ChatRoomService {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
         String result ="";
         if(chatRoom.isPresent()){
-            if(chatRoom.get().getMember_id().equals(memberId)){
+            if(chatRoom.get().getMember_id().getMember_id().equals(memberId)){
                 chatRoomRepository.delete(chatRoom.get());
                 result = "채팅방을 삭제하였습니다.";
             }
