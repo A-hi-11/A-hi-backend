@@ -80,7 +80,7 @@ public class DiffusionService {
         // 잘못된 멤버나 프롬프트 id의 경우 에러 처리
         Assert.notNull(prompt);
         Assert.notNull(member);
-        String question = modelRequestDto.getPrompt();
+        String question = modelRequestDto.getPrompt().concat(", " + prompt.getContent());
         ChatRoom chat_room = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
         // 채팅방이 없는 경우 생성해줌
         if(chat_room == null){
