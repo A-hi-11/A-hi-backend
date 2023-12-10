@@ -58,7 +58,7 @@ public class DiffusionService {
         }
 
         // 질문을 채팅에 저장
-        Text chat_question = makeChat(true, question, chat_room);
+        Text chat_question = makeChat(true, modelRequestDto.getPrompt(), chat_room);
         chatRepository.save(chat_question);
 
         // 대답을 채팅에 저장
@@ -94,7 +94,7 @@ public class DiffusionService {
         }
 
         // 질문을 채팅에 저장
-        Text chat_question = makeChat(true, question, chat_room);
+        Text chat_question = makeChat(true, modelRequestDto.getPrompt(), chat_room);
         chatRepository.save(chat_question);
 
         // 대답을 채팅에 저장
