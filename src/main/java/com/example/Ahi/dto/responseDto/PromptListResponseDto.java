@@ -22,4 +22,5 @@ public class PromptListResponseDto {
     private Long likes;
     private long dislikes;
     private Long comments;
+    private String image;
 }

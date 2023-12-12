@@ -237,14 +237,27 @@ public class PromptService {
 
     private List<PromptListResponseDto> getPromptListResponseDtos(List<Prompt> promptList) {
         List<PromptListResponseDto> responseList = new ArrayList<>();
+
         for (Prompt prompt : promptList) {
             List<Preference> likes = preferenceRepository.findByPromptAndStatus(prompt, "like");
             List<Preference> dislikes = preferenceRepository.findByPromptAndStatus(prompt, "dislike");
             List<Comment> commentList = commentRepository.findByPromptId(prompt);
             PromptListResponseDto responseDto = prompt
                     .toPromptListResponseDto(commentList.size(), likes.size(), dislikes.size());
+            responseDto.setImage("");
+            if(prompt.getMediaType().equals("image")){
+                List<ChatExample> chatExampleList = chatExampleRepository.findByPrompt(prompt);
+                if(!chatExampleList.isEmpty()){
+                    if(!chatExampleList.get(0).isQuestion()){
+                        responseDto.setImage(chatExampleList.get(0).getMessage());
+                    }else{
+                        responseDto.setImage(chatExampleList.get(1).getMessage());
+                    }
+                }
+            }
             responseList.add(responseDto);
         }
+
         return responseList;
     }
     private void saveTags(Set<String> tags, Prompt prompt){
