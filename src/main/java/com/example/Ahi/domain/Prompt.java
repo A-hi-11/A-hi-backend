@@ -54,11 +54,12 @@ public class Prompt {
                 .build();
     }
 
-    public PromptResponseDto toPromptResponseDto(){
+    public PromptResponseDto toPromptResponseDto(String nickname){
         return PromptResponseDto.builder()
                 .title(title)
                 .description(description)
                 .mediaType(mediaType)
+                .nickname(nickname)
                 .category(category)
                 .permission(permission)
                 .update_time(updateTime)

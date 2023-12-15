@@ -100,8 +100,8 @@ public class PromptService {
     public PromptResponseDto getPrompt(long prompt_id, String member_id){
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         Assert.notNull(prompt);
-
-        PromptResponseDto promptResponseDto = prompt.toPromptResponseDto();
+        Member promptMember = memberRepository.findById(prompt.getMember().getMember_id()).orElse(null);
+        PromptResponseDto promptResponseDto = prompt.toPromptResponseDto(promptMember.getNickname());
 
         // 태그 넣기
         ArrayList<Tags> tagsList =
