@@ -24,9 +24,9 @@ public class Comment {
     private String content;
     private LocalDateTime Create_time;
 
-    public CommentListResponse toCommentListResponse(Member member){
+    public CommentListResponse toCommentListResponse(Member member, boolean isPermission){
         return CommentListResponse.builder()
-                .isPermissioned(true)
+                .isPermissioned(isPermission)
                 .member_profile_img(member.getProfile_image())
                 .member_nickname(member.getNickname())
                 .comment_id(comment_id)

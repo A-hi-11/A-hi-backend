@@ -137,7 +137,7 @@ public class PromptService {
 
         // 댓글 추가
         List<Comment> comments = commentRepository.findByPromptId(prompt);
-        promptResponseDto.setComments(getCommentList(comments));
+        promptResponseDto.setComments(getCommentList(comments, member_id));
         // 좋아요 추가
         List<Preference> like = preferenceRepository.findByPromptAndStatus(prompt, "like");
         promptResponseDto.setLikes(like.size());
@@ -278,12 +278,12 @@ public class PromptService {
         }
     }
 
-    private ArrayList<CommentListResponse> getCommentList(List<Comment> list){
+    private ArrayList<CommentListResponse> getCommentList(List<Comment> list, String member_id){
         ArrayList<CommentListResponse> result = new ArrayList<>();
         for(Comment comment: list){
             Member member = memberRepository.findById(comment.getMember_id().getMember_id()).orElse(null);
             Assert.notNull(member);
-            result.add(comment.toCommentListResponse(member));
+            result.add(comment.toCommentListResponse(member, Objects.equals(member.getMember_id(), member_id)));
         }
         return result;
     }
