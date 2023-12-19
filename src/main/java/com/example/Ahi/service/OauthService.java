@@ -186,7 +186,7 @@ public class OauthService {
 
         Member member = memberRepository.findById(member_id).get();
 
-        return "http://localhost:3000?member_id=" +
+        return "http://api.a-hi-prompt.com?member_id=" +
                 member.getMember_id() +
                 "&nickname=" + member.getNickname() +
                 "&profile_image=" + member.getProfile_image() +
