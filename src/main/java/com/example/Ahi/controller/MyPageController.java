@@ -3,7 +3,6 @@ package com.example.Ahi.controller;
 import com.example.Ahi.dto.requestDto.NicknameRequest;
 import com.example.Ahi.dto.requestDto.PasswordCheckRequest;
 import com.example.Ahi.dto.requestDto.PasswordUpdateRequest;
-import com.example.Ahi.dto.requestDto.ProfileImgRequest;
 import com.example.Ahi.dto.responseDto.PromptListResponseDto;
 import com.example.Ahi.service.MyPageService;
 import lombok.RequiredArgsConstructor;
