@@ -4,7 +4,6 @@ package com.example.Ahi.controller;
 import com.example.Ahi.dto.requestDto.ChatgptRequest;
 import com.example.Ahi.dto.responseDto.ChatgptResponse;
 import com.example.Ahi.service.ChatgptService;
-import com.example.Ahi.service.DiffusionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
