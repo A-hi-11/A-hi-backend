@@ -44,18 +44,9 @@ public class DiffusionService {
         // 잘못된 멤버 아이디의 경우 에러 처리
         Assert.notNull(member);
 
+        // 채팅방 조회 혹은 색성
         String question = modelRequestDto.getPrompt();
-        ChatRoom chat_room = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
-        // 채팅방이 없는 경우 생성해줌, 프롬프트는 null
-        if(chat_room == null){
-            chat_room = new ChatRoom();
-            chat_room.setChat_room_name(modelRequestDto.getPrompt());
-            chat_room.setCreate_time(LocalDateTime.now());
-            chat_room.setPrompt_id(null);
-            chat_room.setModel_type(modelRequestDto.getModel_type());
-            chat_room.setMember_id(member);
-            chatRoomRepository.save(chat_room);
-        }
+        ChatRoom chat_room = findOrCreateChatRoom(modelRequestDto, null);
 
         // 질문을 채팅에 저장
         Text chat_question = makeChat(true, modelRequestDto.getPrompt(), chat_room);
@@ -80,18 +71,10 @@ public class DiffusionService {
         // 잘못된 멤버나 프롬프트 id의 경우 에러 처리
         Assert.notNull(prompt);
         Assert.notNull(member);
+        
+        // 채팅방 조회 혹은 생성
         String question = modelRequestDto.getPrompt().concat(", " + prompt.getContent());
-        ChatRoom chat_room = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
-        // 채팅방이 없는 경우 생성해줌
-        if(chat_room == null){
-            chat_room = new ChatRoom();
-            chat_room.setChat_room_name(modelRequestDto.getPrompt());
-            chat_room.setCreate_time(LocalDateTime.now());
-            chat_room.setPrompt_id(prompt);
-            chat_room.setModel_type(modelRequestDto.getModel_type());
-            chat_room.setMember_id(member);
-            chatRoomRepository.save(chat_room);
-        }
+        ChatRoom chat_room = findOrCreateChatRoom(modelRequestDto, prompt);
 
         // 질문을 채팅에 저장
         Text chat_question = makeChat(true, modelRequestDto.getPrompt(), chat_room);
@@ -129,6 +112,19 @@ public class DiffusionService {
         // POST 요청 보내기
         ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.POST, entity, byte[].class);
         return s3Service.uploadDiffusionImage(response.getBody());
+    }
+    private ChatRoom findOrCreateChatRoom(ModelRequestDto modelRequestDto, Prompt prompt) {
+        ChatRoom chatRoom = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
+        if (chatRoom == null) {
+            chatRoom = new ChatRoom();
+            chatRoom.setChat_room_name(modelRequestDto.getPrompt());
+            chatRoom.setCreate_time(LocalDateTime.now());
+            chatRoom.setPrompt_id(prompt);
+            chatRoom.setModel_type(modelRequestDto.getModel_type());
+            chatRoom.setMember_id(memberRepository.findById(modelRequestDto.getMember_id()).orElse(null));
+            chatRoomRepository.save(chatRoom);
+        }
+        return chatRoom;
     }
 
     private Text makeChat(boolean isQuestion, String content, ChatRoom chat_room){
