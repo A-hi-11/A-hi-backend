@@ -44,7 +44,7 @@ public class PromptRetrievalService {
     public PromptResponseDto getPrompt(long prompt_id, String member_id){
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         Assert.notNull(prompt);
-        Member promptMember = memberRepository.findById(prompt.getMember().getMember_id()).orElse(null);
+        Member promptMember = memberRepository.findById(prompt.getMember().getMemberId()).orElse(null);
         PromptResponseDto promptResponseDto = prompt.toPromptResponseDto(promptMember.getNickname());
 
         promptResponseDto.setTags(getTagsForPrompt(prompt));
@@ -165,9 +165,9 @@ public class PromptRetrievalService {
     private ArrayList<CommentListResponse> getCommentList(List<Comment> list, String member_id){
         ArrayList<CommentListResponse> result = new ArrayList<>();
         for(Comment comment: list){
-            Member member = memberRepository.findById(comment.getMember_id().getMember_id()).orElse(null);
+            Member member = memberRepository.findById(comment.getMember_id().getMemberId()).orElse(null);
             Assert.notNull(member);
-            result.add(comment.toCommentListResponse(member, Objects.equals(member.getMember_id(), member_id)));
+            result.add(comment.toCommentListResponse(member, Objects.equals(member.getMemberId(), member_id)));
         }
         return result;
     }

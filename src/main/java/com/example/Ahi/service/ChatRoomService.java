@@ -6,8 +6,8 @@ import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.responseDto.ChatRoomResponse;
 import com.example.Ahi.repository.*;
-import exception.AhiException;
-import exception.ErrorCode;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,6 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
-    private final ConfigInfoRepository configInfoRepository;
     private final PromptRepository promptRepository;
 
 
@@ -83,7 +82,7 @@ public class ChatRoomService {
     }
 
     public List<ChatRoomResponse> roomList(Member member){
-        String member_id = member.getMember_id();
+        String member_id = member.getMemberId();
         //member = memberRepository.findById(member_id).get();
         List<ChatRoom> chatRooms = chatRoomRepository.findByMemberId(member_id);
         List<ChatRoomResponse> lists = new ArrayList<>();
@@ -110,7 +109,7 @@ public class ChatRoomService {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
         String result ="";
         if(chatRoom.isPresent()){
-            if(chatRoom.get().getMember_id().getMember_id().equals(memberId)){
+            if(chatRoom.get().getMember_id().getMemberId().equals(memberId)){
                 chatRoomRepository.delete(chatRoom.get());
                 result = "채팅방을 삭제하였습니다.";
             }

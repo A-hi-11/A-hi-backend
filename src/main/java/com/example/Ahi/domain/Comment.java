@@ -27,7 +27,7 @@ public class Comment {
     public CommentListResponse toCommentListResponse(Member member, boolean isPermission){
         return CommentListResponse.builder()
                 .isPermissioned(isPermission)
-                .member_profile_img(member.getProfile_image())
+                .member_profile_img(member.getProfileImage())
                 .member_nickname(member.getNickname())
                 .comment_id(comment_id)
                 .create_time(Create_time)

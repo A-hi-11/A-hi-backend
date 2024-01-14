@@ -22,7 +22,7 @@ public class PromptDeletionService {
     public String deletePrompt(Long prompt_id, String memberId){
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         Assert.notNull(prompt);
-        Assert.isTrue(Objects.equals(memberId, prompt.getMember().getMember_id()));
+        Assert.isTrue(Objects.equals(memberId, prompt.getMember().getMemberId()));
 
         tagsRepository.deleteByPrompt(prompt);
         chatExampleRepository.deleteByPrompt(prompt);

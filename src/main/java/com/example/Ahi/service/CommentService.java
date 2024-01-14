@@ -77,10 +77,10 @@ public class CommentService {
                 response.setContent(comment.getContent());
                 response.setCreate_time(comment.getCreate_time());
                 //멤버정보
-                String writer_id = comment.getMember_id().getMember_id();
+                String writer_id = comment.getMember_id().getMemberId();
                 Optional<Member> member = memberRepository.findById(writer_id);
                 response.setMember_nickname(member.get().getNickname());
-                response.setMember_profile_img(member.get().getProfile_image());
+                response.setMember_profile_img(member.get().getProfileImage());
                 //허가정보
                 response.setPermissioned(isPermissioned(member_id,writer_id));
 

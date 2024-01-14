@@ -20,10 +20,10 @@ public class GoogleProfile {
     public String hd;
     public Member toMember(){
         return Member.builder()
-                .member_id(email)
-                .profile_image(picture)
+                .memberId(email)
+                .profileImage(picture)
                 .password(generateRandomPassword(8))
-                .last_update_time(LocalDateTime.now())
+                .lastUpdateTime(LocalDateTime.now())
                 .nickname(name)
                 .build();
     }

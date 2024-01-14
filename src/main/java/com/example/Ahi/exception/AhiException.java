@@ -1,8 +1,7 @@
-package exception;
+package com.example.Ahi.exception;
 
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 public class AhiException extends RuntimeException{

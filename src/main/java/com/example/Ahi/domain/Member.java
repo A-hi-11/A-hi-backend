@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
@@ -14,11 +15,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Member {
     @Id
-    private String member_id;
+    private String memberId;
     private String password;
     private String nickname;
-    private LocalDateTime last_update_time;
-    private String profile_image;
+    private LocalDateTime lastUpdateTime;
+    private String profileImage;
     private Boolean isOAuth;
 
     public Member(){

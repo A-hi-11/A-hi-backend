@@ -41,7 +41,7 @@ public class GoogleService {
         }
         // jwt 생성 후 리디렉션 uri 와 함께 리턴
         Long expiredMs = 1000 * 60 * 60L;
-        String jwt = JwtUtil.createJwt(member.getMember_id(), secretKey, expiredMs);
+        String jwt = JwtUtil.createJwt(member.getMemberId(), secretKey, expiredMs);
         // TODO: 프론트 서버의 주소로 리디렉트하도록 구현 추가로 멤버 정보 넣기
         MemberResponseDto memberResponseDto = new MemberResponseDto(member, jwt);
 

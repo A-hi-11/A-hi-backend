@@ -11,9 +11,9 @@ public class MemberResponseDto {
     private Boolean isOAuth;
     private String jwt;
     public MemberResponseDto(Member member, String jwt){
-        this.member_id = member.getMember_id();
+        this.member_id = member.getMemberId();
         this.nickname = member.getNickname();
-        this.profile_image = member.getProfile_image();
+        this.profile_image = member.getProfileImage();
         this.isOAuth = member.getIsOAuth();
         this.jwt = jwt;
 
