@@ -1,15 +1,10 @@
 package com.example.Ahi.dto.responseDto;
-
-import com.example.Ahi.domain.Comment;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-
+import lombok.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Data
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class CommentListResponse {
     private String content;
@@ -18,8 +13,4 @@ public class CommentListResponse {
     private String member_nickname;
     private String member_profile_img;
     private boolean isPermissioned;
-
-    public CommentListResponse() {
-
-    }
 }

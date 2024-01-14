@@ -165,7 +165,7 @@ public class PromptRetrievalService {
     private ArrayList<CommentListResponse> getCommentList(List<Comment> list, String member_id){
         ArrayList<CommentListResponse> result = new ArrayList<>();
         for(Comment comment: list){
-            Member member = memberRepository.findById(comment.getMember_id().getMemberId()).orElse(null);
+            Member member = memberRepository.findById(comment.getMemberId().getMemberId()).orElse(null);
             Assert.notNull(member);
             result.add(comment.toCommentListResponse(member, Objects.equals(member.getMemberId(), member_id)));
         }

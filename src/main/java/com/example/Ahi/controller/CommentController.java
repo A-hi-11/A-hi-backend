@@ -19,29 +19,29 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/{prompt_id}")
-    public ResponseEntity create_comment(Authentication authentication,
+    public ResponseEntity<CommentResponse> create_comment(Authentication authentication,
                                          @PathVariable("prompt_id")Long id,
                                          @RequestBody CommentRequest request){
+
         String memberId = authentication.getName();
-        CommentResponse response = commentService.create_comment(memberId,id, request.getComment());
+        CommentResponse response = commentService.create_comment(memberId,id,request.getComment());
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/delete/{comment_id}")
-    public ResponseEntity delete_comment(Authentication authentication,
+    public ResponseEntity<CommentResponse> delete_comment(Authentication authentication,
                                          @PathVariable("comment_id")Long id){
+
         String memberId = authentication.getName();
-
-
-        CommentResponse response = commentService.delete_comment(id);
+        CommentResponse response = commentService.delete_comment(memberId,id);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/read/{prompt_id}")
     public ResponseEntity read_comment(Authentication authentication,
                                        @PathVariable("prompt_id")Long prompt_id){
+
         String memberId = authentication.getName();
-        //TODO: 멤버 찾기
         List<CommentListResponse> response = commentService.read_comment(prompt_id,memberId);
         return ResponseEntity.ok().body(response);
     }
@@ -50,10 +50,9 @@ public class CommentController {
     public ResponseEntity update_comment(Authentication authentication,
                                          @PathVariable("comment_id")Long id,
                                          @RequestBody CommentRequest request){
+
         String memberId = authentication.getName();
-
-
-        CommentResponse response = commentService.update_comment(id, request.getComment());
+        CommentResponse response = commentService.update_comment(memberId,id,request.getComment());
         return ResponseEntity.ok().body(response);
     }
 

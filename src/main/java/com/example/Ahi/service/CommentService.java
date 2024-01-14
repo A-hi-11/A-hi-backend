@@ -5,6 +5,8 @@ import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.responseDto.CommentListResponse;
 import com.example.Ahi.dto.responseDto.CommentResponse;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import com.example.Ahi.repository.CommentRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
@@ -22,106 +24,109 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PromptRepository promptRepository;
     private final MemberRepository memberRepository;
-    public CommentResponse create_comment(String memberId,Long prompt_id, String context){
-        Comment comment = new Comment();
-        Optional<Prompt> prompt = promptRepository.findById(prompt_id);
+
+    public CommentResponse create_comment(String memberId,Long promptId, String context){
+        Optional<Prompt> prompt = promptRepository.findById(promptId);
         Optional<Member> member = memberRepository.findById(memberId);
         CommentResponse response = new CommentResponse();
 
-        if(prompt.isPresent()){
-            comment.setCreate_time(LocalDateTime.now());
-            comment.setContent(context);
-            comment.setPromptId(prompt.get());
-            // TODO : member 수정필요
-            comment.setMember_id(member.get());
-            commentRepository.save(comment);
-            response.setMessage("성공적으로 저장하였습니다.");
-            response.setId(comment.getComment_id());
-        }
-        else{
-            response.setMessage("없는 프롬프트입니다. 저장에 실패했습니다.");
-        }
+        if(prompt.isEmpty())
+            throw new AhiException(ErrorCode.PROMPT_NOT_FOUND);
+
+        Comment comment = Comment.builder()
+                .content(context)
+                .promptId(prompt.get())
+                .memberId(member.get())
+                .createTime(LocalDateTime.now())
+                .build();
+        commentRepository.save(comment);
+
+        response.setMessage("성공적으로 저장하였습니다.");
+        response.setId(comment.getCommentId());
 
         return response;
     }
 
 
-    public CommentResponse delete_comment(Long id){
-        Optional<Comment> comment = commentRepository.findById(id);
+    public CommentResponse delete_comment(String memberId, Long commentId){
+        Optional<Comment> comment = commentRepository.findById(commentId);
         CommentResponse response = new CommentResponse();
 
-        if(comment.isPresent()){
-            commentRepository.delete(comment.get());
-            response.setMessage("성공적으로 삭제하였습니다.");
-        }
-        else{
-            response.setMessage("없는 댓글입니다. 삭제에 실패했습니다.");
-        }
+        if(comment.isEmpty())
+            throw new AhiException(ErrorCode.COMMENT_NOT_FOUND);
+
+        Member writer = comment.get().getMemberId();
+        if(!isPermissioned(memberId,writer.getMemberId()))
+            throw new AhiException(ErrorCode.INVALID_PERMISSION);
+
+        commentRepository.delete(comment.get());
+        response.setMessage("성공적으로 삭제하였습니다.");
+        response.setId(commentId);
+
         return response;
     }
 
 
-    public List<CommentListResponse> read_comment(Long prompt_id,String member_id){
-        Optional<Prompt> prompt = promptRepository.findById(prompt_id);
+    public List<CommentListResponse> read_comment(Long promptId,String memberId){
+        Optional<Prompt> prompt = promptRepository.findById(promptId);
+
+        if (prompt.isEmpty())
+            throw new AhiException(ErrorCode.PROMPT_NOT_FOUND);
+
+        List<Comment> comments = commentRepository.findByPromptId(prompt.get());
         List<CommentListResponse> responseList = new ArrayList<>();
 
-
-        if (!prompt.isPresent()){
-
+        for(Comment comment:comments){
+            Member writer = comment.getMemberId();
+            CommentListResponse response = CommentListResponse.builder()
+                    .comment_id(comment.getCommentId())
+                    .content(comment.getContent())
+                    .create_time(comment.getCreateTime())
+                    .member_nickname(writer.getNickname())
+                    .member_profile_img(writer.getProfileImage())
+                    .isPermissioned(isPermissioned(memberId,writer.getMemberId()))
+                    .build();
+            responseList.add(response);
         }
-        else{
-            List<Comment> comments = commentRepository.findByPromptId(prompt.get());
-            for(Comment comment:comments){
-                CommentListResponse response = new CommentListResponse();
-                response.setComment_id(comment.getComment_id());
-                response.setContent(comment.getContent());
-                response.setCreate_time(comment.getCreate_time());
-                //멤버정보
-                String writer_id = comment.getMember_id().getMemberId();
-                Optional<Member> member = memberRepository.findById(writer_id);
-                response.setMember_nickname(member.get().getNickname());
-                response.setMember_profile_img(member.get().getProfileImage());
-                //허가정보
-                response.setPermissioned(isPermissioned(member_id,writer_id));
-
-                responseList.add(response);
-            }
-        }
-
 
         return responseList;
     }
 
+
     //댓글 작성자와 현재 로그인한 사용자가 일치하는지 확인 필요
-    public boolean isPermissioned(String member_id, String writer_id){
-        //본인의 프롬프트에 달린 댓글이면 허가 (x)
+    public boolean isPermissioned(String memberId, String writerId){
         //본인이 작성한 댓글이면 허가
-        if(member_id.equals(writer_id)) return true;
+        if(memberId.equals(writerId)) return true;
         else return false;
     }
 
 
-
-
-
-
-
-
-    public CommentResponse update_comment(Long id,String context){
-        Optional<Comment> comment = commentRepository.findById(id);
+    public CommentResponse update_comment(String memberId,Long commentId,String context){
+        Optional<Comment> comment = commentRepository.findById(commentId);
+        Optional<Member> member = memberRepository.findById(memberId);
         CommentResponse response = new CommentResponse();
-        
-        if(comment.isPresent()){
-            comment.get().setContent(context);
-            comment.get().setCreate_time(LocalDateTime.now());
-            System.out.println(comment.get());
-            commentRepository.save(comment.get());
-            response.setMessage("성공적으로 수정하였습니다.");
-            response.setId(comment.get().getComment_id());
-        }
-        else{
-            response.setMessage("없는 댓글입니다. 수정에 실패했습니다.");
-        }
+
+        if(comment.isEmpty())
+            throw new AhiException(ErrorCode.COMMENT_NOT_FOUND);
+        if(member.isEmpty())
+            throw new AhiException(ErrorCode.USER_NOT_FOUND);
+
+        Member writer = comment.get().getMemberId();
+        if(!isPermissioned(memberId,writer.getMemberId()))
+            throw new AhiException(ErrorCode.INVALID_PERMISSION);
+
+        Comment modifiedComment = Comment.builder()
+                .commentId(commentId)
+                .memberId(member.get())
+                .promptId(comment.get().getPromptId())
+                .content(context)
+                .createTime(LocalDateTime.now())
+                .build();
+        commentRepository.save(modifiedComment);
+
+
+        response.setMessage("성공적으로 수정하였습니다.");
+        response.setId(modifiedComment.getCommentId());
         return response;
     }
 }
