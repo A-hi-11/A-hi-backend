@@ -6,9 +6,11 @@ import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.responseDto.ChatRoomResponse;
 import com.example.Ahi.repository.*;
-import exception.AhiException;
-import exception.ErrorCode;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.type.TrueFalseConverter;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,7 +24,6 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
-    private final ConfigInfoRepository configInfoRepository;
     private final PromptRepository promptRepository;
 
 
@@ -30,74 +31,78 @@ public class ChatRoomService {
         Optional<Member> member = memberRepository.findById(member_id);
         model_type = model_type;
 
-        Optional<ChatRoom> exists_chatRoom = chatRoomRepository.findById(chatroom_id);
-        Long chat_room_id;
+        Optional<ChatRoom> existChatRoom = chatRoomRepository.findById(chatroom_id);
+        Long chatRoomId;
 
-        if (!exists_chatRoom.isPresent()){
-            ChatRoom chatRoom = new ChatRoom();
-            chatRoom.setCreate_time(LocalDateTime.now());
-            chatRoom.setMember_id(member.get());
-            chatRoom.setChat_room_name(model_type);
-            chatRoom.setModel_type(model_type);
-
-            chatRoomRepository.save(chatRoom);
-            chat_room_id = chatRoom.getChat_room_id();
-        }
-        else{
-            chat_room_id = exists_chatRoom.get().getChat_room_id();
-        }
-
-        return chat_room_id;
-    }
-
-    public Long find_promptroom(String member_id, Long prompt_id){
-        Optional<Member> member = memberRepository.findById(member_id);
-        Optional<Prompt> prompt = promptRepository.findById(prompt_id);
-
-        if(!prompt.isPresent()){
-            throw new AhiException(ErrorCode.DATABASE_ERROR);
-        }
-        //String model_type = configInfoRepository.findByPromptId(prompt_id).get().getModel_name();
-        System.out.println(member_id + prompt_id);
-        Optional<ChatRoom> promptRoom = chatRoomRepository.findAllByMemberAndPrompt(member_id, prompt_id);
-        Long chat_room_id;
-
-        //새로 생성-> 존재하지 않는경우
-        if(!promptRoom.isPresent()){
-            ChatRoom chatRoom = new ChatRoom();
-            chatRoom.setCreate_time(LocalDateTime.now());
-            chatRoom.setMember_id(member.get());
-            chatRoom.setChat_room_name(prompt.get().getTitle());
-            chatRoom.setModel_type("gpt-3.5-turbo");
-            chatRoom.setPrompt_id(prompt.get());
+        if (!existChatRoom.isPresent()){
+            ChatRoom chatRoom = ChatRoom.builder()
+                    .createTime(LocalDateTime.now())
+                    .modelType(model_type)
+                    .chatRoomName(model_type)
+                    .memberId(member.get())
+                    .build();
 
             chatRoomRepository.save(chatRoom);
-            chat_room_id = chatRoom.getChat_room_id();
+            chatRoomId = chatRoom.getChatRoomId();
         }
         //존재하는 경우
         else{
-            chat_room_id = promptRoom.get().getChat_room_id();
+            chatRoomId = existChatRoom.get().getChatRoomId();
         }
 
-        return chat_room_id;
+        return chatRoomId;
     }
 
-    public List<ChatRoomResponse> roomList(Member member){
-        String member_id = member.getMember_id();
-        //member = memberRepository.findById(member_id).get();
-        List<ChatRoom> chatRooms = chatRoomRepository.findByMemberId(member_id);
+    public Long find_promptroom(String memberId, Long promptId){
+        Optional<Member> member = memberRepository.findById(memberId);
+        Optional<Prompt> prompt = promptRepository.findById(promptId);
+
+        if(prompt.isEmpty())
+            throw new AhiException(ErrorCode.PROMPT_NOT_FOUND);
+        if(member.isEmpty())
+            throw new AhiException(ErrorCode.USER_NOT_FOUND);
+
+        //String model_type = configInfoRepository.findByPromptId(prompt_id).get().getModel_name();
+
+        Optional<ChatRoom> promptRoom = chatRoomRepository.findByMemberIdAndPromptId(member.get(), prompt.get());
+        Long chatRoomId;
+
+        //새로 생성-> 존재하지 않는경우
+        if(promptRoom.isEmpty()){
+            ChatRoom chatRoom = ChatRoom.builder()
+                    .chatRoomName(prompt.get().getTitle())
+                    .memberId(member.get())
+                    .promptId(prompt.get())
+                    .createTime(LocalDateTime.now())
+                    .modelType("gpt-3.5-turbo")
+                    .build();
+            chatRoomRepository.save(chatRoom);
+            chatRoomId = chatRoom.getChatRoomId();
+        }
+        //존재하는 경우
+        else{
+            chatRoomId = promptRoom.get().getChatRoomId();
+        }
+
+        return chatRoomId;
+    }
+
+    public List<ChatRoomResponse> readRoomList(String memberId){
+        Optional<Member> member = memberRepository.findById(memberId);
+        if (member.isEmpty())
+            throw new AhiException(ErrorCode.USER_NOT_FOUND);
+
+        List<ChatRoom> chatRooms = chatRoomRepository.findByMemberId(member.get());
         List<ChatRoomResponse> lists = new ArrayList<>();
 
-
         for (ChatRoom chatRoom:chatRooms){
-            ChatRoomResponse response = new ChatRoomResponse();
-            response.setChat_room_id(chatRoom.getChat_room_id());
-            response.setCreate_time(chatRoom.getCreate_time());
-            response.setChat_room_name(chatRoom.getChat_room_name());
-            response.setModel_type(chatRoom.getModel_type());
-            Optional<String> last_message = chatRepository.findLastMessage(chatRoom.getChat_room_id());
-            if(last_message.isPresent())
-                response.setLast_message(last_message.get());
+            ChatRoomResponse response = ChatRoomResponse.builder()
+                    .chat_room_id(chatRoom.getChatRoomId())
+                    .chat_room_name(chatRoom.getChatRoomName())
+                    .create_time(chatRoom.getCreateTime())
+                    .model_type(chatRoom.getModelType())
+                    .last_message(findLastMessage(chatRoom.getChatRoomId()))
+                    .build();
 
             lists.add(response);
         }
@@ -105,23 +110,36 @@ public class ChatRoomService {
         return lists;
     }
 
+    public String findLastMessage(Long chatRoomId){
+        String lastMessage = "";
+        Optional<String> last_message = chatRepository.findLastMessage(chatRoomId);
+        if(last_message.isPresent())
+            lastMessage = last_message.get();
 
-    public String delete(String memberId, Long chat_room_id){
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
+        return lastMessage;
+    }
+
+
+    public String deleteChatRoom(String memberId, Long chatRoomId){
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chatRoomId);
         String result ="";
-        if(chatRoom.isPresent()){
-            if(chatRoom.get().getMember_id().getMember_id().equals(memberId)){
-                chatRoomRepository.delete(chatRoom.get());
-                result = "채팅방을 삭제하였습니다.";
-            }
 
-        }
-        else{
-            result = "없는 채팅방입니다. 삭제에 실패하였습니다.";
-        }
+        if(chatRoom.isEmpty())
+            throw new AhiException(ErrorCode.CHATROOM_NOT_FOUND);
+
+        if(!isPermissioned(memberId,chatRoom.get().getMemberId().getMemberId()))
+            throw new AhiException(ErrorCode.INVALID_PERMISSION);
+
+        chatRoomRepository.delete(chatRoom.get());
+        result = "채팅방을 삭제하였습니다.";
 
         return result;
 
+    }
+
+    public boolean isPermissioned(String memberId, String writerId){
+        if (memberId.equals(writerId)) return true;
+        else return false;
     }
 
 

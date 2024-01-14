@@ -46,7 +46,7 @@ public class PromptUpdateService {
         promptRequestDto.validate();
         Prompt prompt = promptRepository.findById(prompt_id).orElse(null);
         Assert.notNull(prompt);
-        Assert.isTrue(Objects.equals(promptRequestDto.getMember_id(), prompt.getMember().getMember_id()));
+        Assert.isTrue(Objects.equals(promptRequestDto.getMember_id(), prompt.getMember().getMemberId()));
         Member member = memberRepository.findById(promptRequestDto.getMember_id()).orElse(null);
         prompt.setTitle(promptRequestDto.getTitle());
         prompt.setDescription(promptRequestDto.getDescription());

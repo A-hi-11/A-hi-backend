@@ -4,9 +4,10 @@ package com.example.Ahi.service;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.dto.requestDto.MemberRequest;
 import com.example.Ahi.dto.responseDto.LoginResponse;
+import com.example.Ahi.exception.ErrorCode;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.utils.JwtUtil;
-import exception.AhiException;
+import com.example.Ahi.exception.AhiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,8 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static exception.ErrorCode.USER_NOT_FOUND;
+import static com.example.Ahi.exception.ErrorCode.INVALID_PASSWORD;
+import static com.example.Ahi.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -28,43 +30,41 @@ public class MemberService {
 
     public String signup(MemberRequest request){
         Optional<Member> member = memberRepository.findById(request.getMember_id());
-        Member newMember = new Member();
         String response = "";
 
-        if(member.isPresent()){
-            response = "이미 존재하는 이메일입니다. 회원가입에 실패하였습니다.";
-        }
-        else{
-            newMember.setMember_id(request.getMember_id());
-            newMember.setPassword(request.getPassword());   // password 인코딩 필요
-            newMember.setNickname(request.getNickname());
-            newMember.setProfile_image(request.getProfile_image());
-            newMember.setLast_update_time(LocalDateTime.now());
+        if(member.isPresent())
+            throw new AhiException(ErrorCode.DUPLICATED_USER);
 
-            memberRepository.save(newMember);
-            response = "회원가입에 성공하였습니다.";
-        }
+        Member newMember = Member.builder()
+                .memberId(request.getMember_id())
+                .password(request.getPassword())
+                .nickname(request.getNickname())
+                .profileImage(request.getProfile_image())
+                .lastUpdateTime(LocalDateTime.now())
+                .build();
+
+        memberRepository.save(newMember);
+        response = "회원가입에 성공하였습니다.";
 
         return response;
     }
 
 
 
-    public LoginResponse loginAndReturnToken(String member_id, String password){
-        Optional<Member> member = memberRepository.findById(member_id);
-        LoginResponse response = new LoginResponse();
+    public LoginResponse loginAndReturnToken(String memberId, String password){
+        Optional<Member> member = memberRepository.findById(memberId);
+
         if(member.isEmpty())
             throw new AhiException(USER_NOT_FOUND);
+        if (!member.get().getPassword().equals(password))
+            throw new AhiException(INVALID_PASSWORD);
 
-        else{
-            if(member.get().getPassword().equals(password)) {
-                response.setMemberId(member.get().getMember_id());
-                response.setNickname(member.get().getNickname());
-                response.setProfileImg(member.get().getProfile_image());
-                response.setJwt(JwtUtil.createJwt(member_id,secretKey,expiredMs));
-            } else
-                throw new AhiException(USER_NOT_FOUND);
-        }
+        LoginResponse response = LoginResponse.builder()
+                .memberId(member.get().getMemberId())
+                .nickname(member.get().getNickname())
+                .profileImg(member.get().getProfileImage())
+                .jwt(JwtUtil.createJwt(memberId,secretKey,expiredMs))
+                .build();
 
         return response;
     }

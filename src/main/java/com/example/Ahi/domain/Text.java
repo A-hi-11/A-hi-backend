@@ -18,8 +18,8 @@ public class Text {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="chat_room_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private ChatRoom chat_room_id;
+    private ChatRoom chatRoomId;
     private String content;
     private boolean isQuestion;
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 }

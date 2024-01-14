@@ -85,9 +85,9 @@ public class MyPageService {
 
         if (member.isPresent()) {
             Member pmember = member.get();
-            pmember.setProfile_image(imgUrl);
+            pmember.setProfileImage(imgUrl);
             memberRepository.save(pmember);
-            return pmember.getProfile_image();
+            return pmember.getProfileImage();
         } else {
             return "해당 이메일을 가진 회원이 존재하지 않습니다.";
         }

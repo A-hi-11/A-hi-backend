@@ -98,19 +98,19 @@ public class OauthService {
         if(Opmember.isEmpty()) {
             Member member;
             member = Member.builder()
-                    .member_id("tmpMail@kakao.com")
+                    .memberId("tmpMail@kakao.com")
                     .password("KAKAO")
                     .nickname(profile.getKakao_account().getProfile().getNickname())
-                    .profile_image(profile.getKakao_account().getProfile().getProfile_image_url())
+                    .profileImage(profile.getKakao_account().getProfile().getProfile_image_url())
                     .isOAuth(true)
                     .build();
 
             memberRepository.save(member);
-            response = JwtUtil.createJwt(member.getMember_id(), secretKey, expiredMs);
+            response = JwtUtil.createJwt(member.getMemberId(), secretKey, expiredMs);
         }
         //이미 회원정보가 존재하는 멤버
         else {
-            response = JwtUtil.createJwt(Opmember.get().getMember_id(), secretKey, expiredMs);
+            response = JwtUtil.createJwt(Opmember.get().getMemberId(), secretKey, expiredMs);
         }
 
         return response;
@@ -187,9 +187,9 @@ public class OauthService {
         Member member = memberRepository.findById(member_id).get();
 
         return "http://api.a-hi-prompt.com?member_id=" +
-                member.getMember_id() +
+                member.getMemberId() +
                 "&nickname=" + member.getNickname() +
-                "&profile_image=" + member.getProfile_image() +
+                "&profile_image=" + member.getProfileImage() +
                 "&isOAuth=" + member.getIsOAuth() +
                 "&jwt=" + response;
     }
@@ -237,22 +237,22 @@ public class OauthService {
         //없는 멤버 회원정보 저장(회원가입)
         if(Opmember.isEmpty()) {
             member = Member.builder()
-                    .member_id(profile.getResponse().getEmail())
+                    .memberId(profile.getResponse().getEmail())
                     .password(generateRandomPassword(8))
                     .nickname(profile.getResponse().getNickname())
-                    .profile_image(profile.getResponse().getProfile_image())
-                    .last_update_time(LocalDateTime.now())
+                    .profileImage(profile.getResponse().getProfile_image())
+                    .lastUpdateTime(LocalDateTime.now())
                     .isOAuth(true)
                     .build();
 
             memberRepository.save(member);
             //System.out.println(test);
 
-            response = JwtUtil.createJwt(member.getMember_id(), secretKey, expiredMs);
+            response = JwtUtil.createJwt(member.getMemberId(), secretKey, expiredMs);
         }
         //이미 회원정보가 존재하는 멤버
         else {
-            response = JwtUtil.createJwt(Opmember.get().getMember_id(), secretKey, expiredMs);
+            response = JwtUtil.createJwt(Opmember.get().getMemberId(), secretKey, expiredMs);
         }
         return response;
     }

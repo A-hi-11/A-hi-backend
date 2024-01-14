@@ -15,17 +15,13 @@ import java.util.Random;
 @Component
 @RequiredArgsConstructor
 public class MailUtilImpl implements MailUtil{
-
     @Autowired
     JavaMailSender emailSender;
-
     private final RedisUtil redisUtil;
-
     private Long expiredMs = 1000*60*5L; //5분
     public static final int CODE = createCode();
     @Value("${AdminMail.id}")
     private String host_mail_address;
-
     @Value("${AdminMail.password}")
     private String password;
 
@@ -67,8 +63,7 @@ public class MailUtilImpl implements MailUtil{
         try{//예외처리
             emailSender.send(message);
             saveCode(email,String.valueOf(CODE));
-        }catch(MailException es){
-            es.printStackTrace();
+        }catch(MailException e){
             throw new IllegalArgumentException();
         }
         return CODE;

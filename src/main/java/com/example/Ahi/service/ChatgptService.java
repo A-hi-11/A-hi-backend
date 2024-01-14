@@ -176,11 +176,11 @@ public class ChatgptService {
     public List<Message> compositeMessage(String input,Long chat_room_id){
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
 
-        List<Message> messages = chatService.memorizedChat(chat_room_id);
+        List<Message> messages = chatService.memorizedChat(chatRoom.get());
 
         //프롬프트를 이용하였다면 메세지에 포함시킴
-        if(chatRoom.isPresent() && chatRoom.get().getPrompt_id()!=null){
-            Message message = setPrompt(chatRoom.get().getPrompt_id().getPrompt_id());
+        if(chatRoom.isPresent() && chatRoom.get().getPromptId()!=null){
+            Message message = setPrompt(chatRoom.get().getPromptId().getPrompt_id());
             messages.add(0,message);
         }
 

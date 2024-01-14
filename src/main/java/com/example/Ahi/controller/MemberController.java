@@ -28,32 +28,31 @@ public class MemberController {
 
 
     @PostMapping("/signup") //회원가입
-    public ResponseEntity signup(@RequestBody MemberRequest request){
+    public ResponseEntity<String> signup(@RequestBody MemberRequest request){
 
         String response = memberService.signup(request);
-
         return ResponseEntity.ok().body(response);
 
     }
 
     @PostMapping("/signin")
-    public ResponseEntity login(@RequestBody SigninRequest request){
+    public ResponseEntity<LoginResponse> login(@RequestBody SigninRequest request){
+
         LoginResponse response = memberService.loginAndReturnToken(request.getUserId(), request.getUserPassword());
         return ResponseEntity.ok().body(response);
     }
 
 
     @PostMapping("/mail")
-    public ResponseEntity emailConfirm(@RequestBody EmailDto email) throws Exception {
+    public ResponseEntity<Integer> emailConfirm(@RequestBody EmailDto email) throws Exception {
 
         int sendCode = mailUtil.sendMessage(email.getEmail());
-
         return ResponseEntity.ok().body(sendCode);
     }
     @PostMapping("/mail/check")
-    public ResponseEntity codeCheck(@RequestBody MailCheckRequest request){
-        boolean result = mailService.codeCheck(request.getEmail(),request.getCode());
+    public ResponseEntity<Boolean> codeCheck(@RequestBody MailCheckRequest request){
 
+        boolean result = mailService.codeCheck(request.getEmail(),request.getCode());
         return ResponseEntity.ok().body(result);
     }
 }

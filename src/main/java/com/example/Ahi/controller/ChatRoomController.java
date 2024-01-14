@@ -7,8 +7,8 @@ import com.example.Ahi.dto.responseDto.ChatRoomResponse;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.service.ChatRoomService;
 import com.example.Ahi.service.ChatService;
-import exception.AhiException;
-import exception.ErrorCode;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,31 +23,32 @@ import java.util.Optional;
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
     private final ChatService chatService;
-    private final MemberRepository memberRepository;
+
     @GetMapping()
-    public ResponseEntity roomList(Authentication authentication){
+    public ResponseEntity<List<ChatRoomResponse>> roomList(Authentication authentication){
+
         String memberId = authentication.getName();
-        Optional<Member> member = memberRepository.findById(memberId);
-        if (!member.isPresent()){
-            throw new AhiException(ErrorCode.USER_NOT_FOUND);
-        }
-        List<ChatRoomResponse> responseList = chatRoomService.roomList(member.get());
+        List<ChatRoomResponse> responseList = chatRoomService.readRoomList(memberId);
 
         return ResponseEntity.ok().body(responseList);
     }
 
     @DeleteMapping("{chat_room_id}")
-    public ResponseEntity delete(Authentication authentication, @PathVariable("chat_room_id")Long chat_room_id){
+    public ResponseEntity<String> delete(Authentication authentication,
+                                 @PathVariable("chat_room_id")Long chat_room_id){
+
         String memberId = authentication.getName();
-        String response = chatRoomService.delete(memberId,chat_room_id);
+        String response = chatRoomService.deleteChatRoom(memberId,chat_room_id);
 
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/read/{chat_room_id}")
-    public ResponseEntity readChatList(Authentication authentication,@PathVariable("chat_room_id")Long chat_room_id){
+    public ResponseEntity<List<ChatItemResponse>> readChatList(Authentication authentication,
+                                       @PathVariable("chat_room_id")Long chat_room_id){
+
         String memberId = authentication.getName();
-        List<ChatItemResponse> response = chatService.show_chatList(memberId,chat_room_id);
+        List<ChatItemResponse> response = chatService.readChatList(chat_room_id);
 
         return ResponseEntity.ok().body(response);
     }

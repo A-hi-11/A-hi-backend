@@ -60,7 +60,7 @@ public class DiffusionService {
         // 응답 결과 반환
         ModelResponseDto modelResponseDto = new ModelResponseDto();
         modelResponseDto.setResponse(imgUrl);
-        modelResponseDto.setChat_room_id(chat_room.getChat_room_id());
+        modelResponseDto.setChat_room_id(chat_room.getChatRoomId());
 
         return modelResponseDto;
     }
@@ -88,7 +88,7 @@ public class DiffusionService {
         // 응답 결과 반환
         ModelResponseDto modelResponseDto = new ModelResponseDto();
         modelResponseDto.setResponse(imgUrl);
-        modelResponseDto.setChat_room_id(chat_room.getChat_room_id());
+        modelResponseDto.setChat_room_id(chat_room.getChatRoomId());
 
         return modelResponseDto;
     }
@@ -117,11 +117,11 @@ public class DiffusionService {
         ChatRoom chatRoom = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
         if (chatRoom == null) {
             chatRoom = new ChatRoom();
-            chatRoom.setChat_room_name(modelRequestDto.getPrompt());
-            chatRoom.setCreate_time(LocalDateTime.now());
-            chatRoom.setPrompt_id(prompt);
-            chatRoom.setModel_type(modelRequestDto.getModel_type());
-            chatRoom.setMember_id(memberRepository.findById(modelRequestDto.getMember_id()).orElse(null));
+            chatRoom.setChatRoomName(modelRequestDto.getPrompt());
+            chatRoom.setCreateTime(LocalDateTime.now());
+            chatRoom.setPromptId(prompt);
+            chatRoom.setModelType(modelRequestDto.getModel_type());
+            chatRoom.setMemberId(memberRepository.findById(modelRequestDto.getMember_id()).orElse(null));
             chatRoomRepository.save(chatRoom);
         }
         return chatRoom;
@@ -131,8 +131,8 @@ public class DiffusionService {
         Text text = new Text();
         text.setQuestion(isQuestion);
         text.setContent(content);
-        text.setCreate_time(LocalDateTime.now());
-        text.setChat_room_id(chat_room);
+        text.setCreateTime(LocalDateTime.now());
+        text.setChatRoomId(chat_room);
 
         return text;
     }

@@ -40,7 +40,7 @@ public class Prompt {
     public PromptListResponseDto toPromptListResponseDto(long comments, long likes, long dislikes){
         return PromptListResponseDto.builder()
                 .prompt_id(prompt_id)
-                .member_id(member.getMember_id())
+                .member_id(member.getMemberId())
                 .nickname(member.getNickname())
                 .title(title)
                 .description(description)
@@ -66,7 +66,7 @@ public class Prompt {
                 .create_time(create_time)
                 .prompt_id(prompt_id)
                 .content(content)
-                .member_id(member.getMember_id())
+                .member_id(member.getMemberId())
                 .welcome_message(welcome_message)
                 .build();
     }
