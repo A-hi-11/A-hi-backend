@@ -23,7 +23,7 @@ import java.util.Optional;
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
     private final ChatService chatService;
-    private final MemberRepository memberRepository;
+
     @GetMapping()
     public ResponseEntity<List<ChatRoomResponse>> roomList(Authentication authentication){
 

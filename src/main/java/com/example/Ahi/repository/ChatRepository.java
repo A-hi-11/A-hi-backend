@@ -16,6 +16,6 @@ public interface ChatRepository extends JpaRepository<Text,Long> {
 //    @Query(value = "SELECT * from text WHERE chat_room_id = :chatRoomId order by create_time",nativeQuery = true)
 //    List<Text> findByChatRoomId(@Param("chatRoomId")Long chatRoomId);
 
-    List<Text> findByChatRoomId(Long chatRoomId);
+    List<Text> findByChatRoomId(ChatRoom chatRoomId);
 }
 

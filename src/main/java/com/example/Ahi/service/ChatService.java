@@ -5,6 +5,8 @@ import com.example.Ahi.domain.ChatRoom;
 import com.example.Ahi.domain.Text;
 import com.example.Ahi.dto.requestDto.Message;
 import com.example.Ahi.dto.responseDto.ChatItemResponse;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import com.example.Ahi.repository.ChatRepository;
 import com.example.Ahi.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,21 +27,23 @@ public class ChatService {
     public void save_chat(Long chat_room_id, boolean isQuestion, String context){
         Text text = new Text();
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
-        text.setChat_room_id(chatRoom.get());
+        text.setChatRoomId(chatRoom.get());
         text.setQuestion(isQuestion);
         text.setContent(context);
-        text.setCreate_time(LocalDateTime.now());
+        text.setCreateTime(LocalDateTime.now());
 
         chatRepository.save(text);
 
     }
 
     public List<ChatItemResponse> readChatList(Long chatRoomId){
-        List<Text> chats = chatRepository.findByChatRoomId(chatRoomId);
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chatRoomId);
+        if (chatRoom.isEmpty())
+            throw new AhiException(ErrorCode.CHATROOM_NOT_FOUND);
+
+        List<Text> chats = chatRepository.findByChatRoomId(chatRoom.get());
 
         List<ChatItemResponse> chatItemList = new ArrayList<>();
-
         for (Text chat:chats){
             ChatItemResponse item = new ChatItemResponse();
             item.setContent(chat.getContent());
@@ -56,8 +60,8 @@ public class ChatService {
     }
 
 
-    public List<Message> memorizedChat(Long chat_room_id){
-        List<Text> chatList = chatRepository.findByChatRoomId(chat_room_id);
+    public List<Message> memorizedChat(ChatRoom chatRoomId){
+        List<Text> chatList = chatRepository.findByChatRoomId(chatRoomId);
         List<Message> messages = new ArrayList<>();
         if(!chatList.isEmpty()){
             for(Text chat:chatList){
