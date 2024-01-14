@@ -34,36 +34,25 @@ public class ChatService {
 
     }
 
-    public List<ChatItemResponse> show_chatList(String memberId, Long chat_room_id){
-        List<Text> chats = chatRepository.findByChatRoomId(chat_room_id);
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
+    public List<ChatItemResponse> readChatList(Long chatRoomId){
+        List<Text> chats = chatRepository.findByChatRoomId(chatRoomId);
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chatRoomId);
 
         List<ChatItemResponse> chatItemList = new ArrayList<>();
 
-        if(chats.isEmpty()){
-            //TODO: 예외처리
-
+        for (Text chat:chats){
             ChatItemResponse item = new ChatItemResponse();
-            item.setContent(null);
-        }
-        else{
-            for (Text chat:chats){
-                ChatItemResponse item = new ChatItemResponse();
-                item.setContent(chat.getContent());
-                item.setQuestion(chat.isQuestion());
-                if (!chat.isQuestion() && chatRoom.get().getModel_type().equals("image"))
-                    item.setImage(true);
-                else{
-                    item.setImage(false);
-                }
-                chatItemList.add(item);
-            }
+            item.setContent(chat.getContent());
+            item.setQuestion(chat.isQuestion());
+            if (!chat.isQuestion() && chatRoom.get().getModelType().equals("image"))
+                item.setImage(true);
+            else
+                item.setImage(false);
 
+            chatItemList.add(item);
         }
-
 
         return chatItemList;
-
     }
 
 

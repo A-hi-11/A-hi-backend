@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<Text,Long> {
-    //TODO : 채팅방마다 마지막 메세지 가져오기
+    // TODO : 채팅방마다 마지막 메세지 가져오기
     @Query(value = "SELECT content from text WHERE chat_room_id = :chatRoomId order by create_time desc limit 1",nativeQuery = true)
     Optional<String> findLastMessage(@Param("chatRoomId")Long chatRoomId);
-    @Query(value = "SELECT * from text WHERE chat_room_id = :chatRoomId order by create_time",nativeQuery = true)
-    List<Text> findByChatRoomId(@Param("chatRoomId")Long chatRoomId);
+//    @Query(value = "SELECT * from text WHERE chat_room_id = :chatRoomId order by create_time",nativeQuery = true)
+//    List<Text> findByChatRoomId(@Param("chatRoomId")Long chatRoomId);
+
+    List<Text> findByChatRoomId(Long chatRoomId);
 }
 
