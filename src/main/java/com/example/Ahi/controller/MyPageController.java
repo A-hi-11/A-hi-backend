@@ -22,17 +22,17 @@ public class MyPageController {
 
     @PutMapping("/password/update")
     public ResponseEntity<String> updatePassword(Authentication authentication,
-                                                 @RequestBody PasswordUpdateRequest new_password){
+                                                 @RequestBody PasswordUpdateRequest newPassword){
 
         String memberId = authentication.getName();
-        return ResponseEntity.ok(myPageService.updatePassword(memberId,new_password.getNew_password()));
+        return ResponseEntity.ok(myPageService.updatePassword(memberId,newPassword.getNewPassword()));
     }
 
     @PutMapping("/password/check")
     public ResponseEntity<String> checkPassword(Authentication authentication,
-                                                @RequestBody PasswordCheckRequest cur_password){
+                                                @RequestBody PasswordCheckRequest inputPassword){
         String memberId = authentication.getName();
-        return ResponseEntity.ok(myPageService.checkPassword(memberId,cur_password.getCur_password()));
+        return ResponseEntity.ok(myPageService.checkPassword(memberId, inputPassword.getInputPassword()));
     }
 
     @PutMapping("/image")
