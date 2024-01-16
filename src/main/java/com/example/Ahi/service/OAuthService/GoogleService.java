@@ -1,4 +1,4 @@
-package com.example.Ahi.service;
+package com.example.Ahi.service.OAuthService;
 
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.dto.oauthDto.GoogleProfile;
