@@ -13,6 +13,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatgptRequestDto implements Serializable {
     private List<Message> messages;
     private String model = "gpt-3.5-turbo";
@@ -27,4 +28,6 @@ public class ChatgptRequestDto implements Serializable {
     private Double frequency_penalty=0.0;
     @JsonProperty("presence_penalty")
     private Double presence_penalty=0.0;
+    @JsonProperty("stream")
+    private boolean stream = true;
 }

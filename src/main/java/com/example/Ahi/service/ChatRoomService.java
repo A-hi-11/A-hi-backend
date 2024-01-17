@@ -2,6 +2,7 @@ package com.example.Ahi.service;
 
 
 import com.example.Ahi.domain.ChatRoom;
+import com.example.Ahi.domain.ConfigInfo;
 import com.example.Ahi.domain.Member;
 import com.example.Ahi.domain.Prompt;
 import com.example.Ahi.dto.responseDto.ChatRoomResponse;
@@ -9,8 +10,6 @@ import com.example.Ahi.repository.*;
 import com.example.Ahi.exception.AhiException;
 import com.example.Ahi.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.type.TrueFalseConverter;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,27 +24,26 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final PromptRepository promptRepository;
+    private final ConfigInfoRepository configInfoRepository;
 
 
-    public Long find_chatroom(String member_id, String model_type, Long chatroom_id){
-        Optional<Member> member = memberRepository.findById(member_id);
-        model_type = model_type;
-
-        Optional<ChatRoom> existChatRoom = chatRoomRepository.findById(chatroom_id);
+    public Long find_chatroom(String memberId, String modelType, Long givenId){
+        Optional<Member> member = memberRepository.findById(memberId);
+        Optional<ChatRoom> existChatRoom = chatRoomRepository.findById(givenId);
         Long chatRoomId;
 
-        if (!existChatRoom.isPresent()){
+        //TODO: 프롬프트 없이 gpt를 이용하는 경우 채팅방 이름
+        if (existChatRoom.isEmpty()){
             ChatRoom chatRoom = ChatRoom.builder()
                     .createTime(LocalDateTime.now())
-                    .modelType(model_type)
-                    .chatRoomName(model_type)
+                    .modelType(modelType)
+                    .chatRoomName(modelType)
                     .memberId(member.get())
                     .build();
 
             chatRoomRepository.save(chatRoom);
             chatRoomId = chatRoom.getChatRoomId();
         }
-        //존재하는 경우
         else{
             chatRoomId = existChatRoom.get().getChatRoomId();
         }
@@ -56,36 +54,40 @@ public class ChatRoomService {
     public Long find_promptroom(String memberId, Long promptId){
         Optional<Member> member = memberRepository.findById(memberId);
         Optional<Prompt> prompt = promptRepository.findById(promptId);
+        Optional<ConfigInfo> configInfo = configInfoRepository.findByPromptId(prompt.get());
+        String modelType;
 
         if(prompt.isEmpty())
             throw new AhiException(ErrorCode.PROMPT_NOT_FOUND);
         if(member.isEmpty())
             throw new AhiException(ErrorCode.USER_NOT_FOUND);
+        if(configInfo.isEmpty())
+            modelType = configInfo.get().getModelName();
+        else
+            modelType = "gpt-3.5-turbo";
 
-        //String model_type = configInfoRepository.findByPromptId(prompt_id).get().getModel_name();
 
         Optional<ChatRoom> promptRoom = chatRoomRepository.findByMemberIdAndPromptId(member.get(), prompt.get());
         Long chatRoomId;
 
-        //새로 생성-> 존재하지 않는경우
         if(promptRoom.isEmpty()){
             ChatRoom chatRoom = ChatRoom.builder()
                     .chatRoomName(prompt.get().getTitle())
                     .memberId(member.get())
                     .promptId(prompt.get())
                     .createTime(LocalDateTime.now())
-                    .modelType("gpt-3.5-turbo")
+                    .modelType(modelType)
                     .build();
             chatRoomRepository.save(chatRoom);
             chatRoomId = chatRoom.getChatRoomId();
         }
-        //존재하는 경우
         else{
             chatRoomId = promptRoom.get().getChatRoomId();
         }
 
         return chatRoomId;
     }
+
 
     public List<ChatRoomResponse> readRoomList(String memberId){
         Optional<Member> member = memberRepository.findById(memberId);
@@ -122,7 +124,7 @@ public class ChatRoomService {
 
     public String deleteChatRoom(String memberId, Long chatRoomId){
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chatRoomId);
-        String result ="";
+        String result = "";
 
         if(chatRoom.isEmpty())
             throw new AhiException(ErrorCode.CHATROOM_NOT_FOUND);
