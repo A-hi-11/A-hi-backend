@@ -7,23 +7,23 @@ import lombok.Data;
 @Data
 public class GptConfigInfo {
     private String model_name;
-    private float temperature;
-    private Long maximum_length;
+    private double temperature;
+    private int maximum_length;
     private String stop_sequence;
-    private float top_p;
-    private float frequency_penalty;
-    private float presence_penalty;
+    private double top_p;
+    private double frequency_penalty;
+    private double presence_penalty;
 
     public ConfigInfo toConfigInfo(Prompt prompt){
         return ConfigInfo.builder()
                 .promptId(prompt)
-                .maximum_length(maximum_length)
+                .maximumLength(maximum_length)
                 .temperature(temperature)
-                .frequency_penalty(frequency_penalty)
-                .stop_sequence(stop_sequence)
-                .model_name(model_name)
-                .top_p(top_p)
-                .presence_penalty(presence_penalty)
+                .frequencyPenalty(frequency_penalty)
+                .stopSequence(stop_sequence)
+                .modelName(model_name)
+                .topP(top_p)
+                .presencePenalty(presence_penalty)
                 .build();
     }
 }
