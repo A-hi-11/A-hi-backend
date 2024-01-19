@@ -13,10 +13,14 @@ import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.ConfigInfoRepository;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingRegistry;
 import com.knuddels.jtokkit.api.ModelType;
+import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import com.example.Ahi.dto.requestDto.ChatgptRequest;
 import com.example.Ahi.dto.responseDto.ChatgptResponse;
@@ -51,11 +55,9 @@ public class ChatgptService {
 
 
     public SseEmitter getGpt(String memberId,Long chatroomId, String request, GptConfigInfo gptConfigInfo){
-        //ChatgptResponse responseDto = new ChatgptResponse();
+        StringBuffer sb = new StringBuffer();
         String modelType = gptConfigInfo.getModel_name();
-
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
-
         // 채팅방 찾기(없으면 생성)
         Long chatRoomId = chatRoomService.find_chatroom(memberId,modelType,chatroomId);
         //요청 메세지
@@ -71,46 +73,40 @@ public class ChatgptService {
                 .stream(true)
                 .build();
 
-//        HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
-//        RestTemplate restTemplate = new RestTemplate();
-//        ResponseEntity<ChatgptResponseDto> responseEntity = restTemplate.postForEntity(
-//                url,
-//                requestEntity,
-//                ChatgptResponseDto.class);
-//
-//        //response 파싱
-//        ChatgptResponseDto result = responseEntity.getBody();
-//        String answer = result.getChoices().get(0).getMessage().getContent();
-//
-//        responseDto.setAnswer(answer);
-//        responseDto.setChat_room_id(chatRoomId);
-//
-//
-//        //채팅내역 저장
-//        chatService.save_chat(chatRoomId,true,request);
-//        chatService.save_chat(chatRoomId,false,responseDto.getAnswer());
 
-        WebClient client = WebClient.create("https://api.openai.com/v1");
-
-        client.post().uri("/chat/completions")
+        WebClient.create()
+                .post().uri(url)
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + key)
                 .body(BodyInserters.fromValue(requestDto))
-                .exchangeToFlux(response -> response.bodyToFlux(ChatStreamResponseDto.class))
-                .doOnNext(line -> {
+                .exchangeToFlux(response -> response.bodyToFlux(String.class))
+                .doOnNext(data -> {
                     try {
-                        if (line.getChoices().get(0).getFinishReason()!=null) {
+                        if (data.equals("[DONE]")) {
+                            sseEmitter.send("chat_room_id: "+chatRoomId );
+                            chatService.save_chat(chatRoomId,false,sb.toString());
                             sseEmitter.complete();
-                            return;
                         }
-                        sseEmitter.send(line.getChoices().get(0).getDelta().getContent());
+                        else{
+                            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+                            ChatStreamResponseDto streamDto = mapper.readValue(data,ChatStreamResponseDto.class);
+                            ChatStreamResponseDto.Choice.Delta word = streamDto.getChoices().get(0).getDelta();
+
+                            if (word!=null && word.getContent()!=null){
+                                sb.append(word.getContent());
+                                sseEmitter.send(word.getContent());
+                            }
+                        }
+
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        throw new AhiException(ErrorCode.FAIL_TO_SEND);
                     }
                 })
-                .doOnError(sseEmitter::completeWithError)
                 .doOnComplete(sseEmitter::complete)
+                .doOnError(sseEmitter::completeWithError)
                 .subscribe();
+
+        chatService.save_chat(chatRoomId,true,request);
         return sseEmitter;
     }
 
@@ -206,8 +202,6 @@ public class ChatgptService {
         messages.addAll(chatService.memorizedChat(chatRoom.get()));
         messages.add(new Message("user", input));
 
-        System.out.println("----");
-        System.out.println(messages);
 
         while (getTokenSize(messages.toString())>MAXTOKEN){
             messages.remove(1);

@@ -1,6 +1,8 @@
 package com.example.Ahi.dto.responseDto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,15 +13,15 @@ import java.util.List;
 public class ChatStreamResponseDto implements Serializable {
     private String id;
     private String object;
-    private LocalDate created;
+    private Long created;
     private String model;
     @JsonProperty("system_fingerprint")
     private String system_fingerprint;
-    private List<ChatStreamResponseDto.Choice> choices;
+    private List<Choice> choices;
 
     @Data
     public static class Choice{
-        private ChatStreamResponseDto.Choice.Delta delta;
+        private Delta delta;
         private Integer index;
         @JsonProperty("finish_reason")
         private String finishReason;
