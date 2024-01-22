@@ -18,7 +18,6 @@ public class ChatStreamResponseDto implements Serializable {
     @JsonProperty("system_fingerprint")
     private String system_fingerprint;
     private List<Choice> choices;
-
     @Data
     public static class Choice{
         private Delta delta;

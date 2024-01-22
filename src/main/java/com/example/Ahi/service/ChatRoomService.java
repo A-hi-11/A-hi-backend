@@ -23,8 +23,6 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
-    private final PromptRepository promptRepository;
-    private final ConfigInfoRepository configInfoRepository;
 
 
     public Long find_chatroom(String memberId, String modelType, Long givenId){
@@ -51,32 +49,21 @@ public class ChatRoomService {
         return chatRoomId;
     }
 
-    public Long find_promptroom(String memberId, Long promptId){
+    public Long find_promptroom(String memberId, Prompt prompt, String modelName){
         Optional<Member> member = memberRepository.findById(memberId);
-        Optional<Prompt> prompt = promptRepository.findById(promptId);
-        Optional<ConfigInfo> configInfo = configInfoRepository.findByPromptId(prompt.get());
-        String modelType;
-
-        if(prompt.isEmpty())
-            throw new AhiException(ErrorCode.PROMPT_NOT_FOUND);
         if(member.isEmpty())
             throw new AhiException(ErrorCode.USER_NOT_FOUND);
-        if(configInfo.isEmpty())
-            modelType = configInfo.get().getModelName();
-        else
-            modelType = "gpt-3.5-turbo";
 
-
-        Optional<ChatRoom> promptRoom = chatRoomRepository.findByMemberIdAndPromptId(member.get(), prompt.get());
+        Optional<ChatRoom> promptRoom = chatRoomRepository.findByMemberIdAndPromptId(member.get(), prompt);
         Long chatRoomId;
 
         if(promptRoom.isEmpty()){
             ChatRoom chatRoom = ChatRoom.builder()
-                    .chatRoomName(prompt.get().getTitle())
+                    .chatRoomName(prompt.getTitle())
                     .memberId(member.get())
-                    .promptId(prompt.get())
+                    .promptId(prompt)
                     .createTime(LocalDateTime.now())
-                    .modelType(modelType)
+                    .modelType(modelName)
                     .build();
             chatRoomRepository.save(chatRoom);
             chatRoomId = chatRoom.getChatRoomId();
