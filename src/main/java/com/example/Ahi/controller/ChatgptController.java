@@ -25,7 +25,7 @@ public class ChatgptController {
                                              @RequestBody ChatgptRequest request){
 
         String memberId = authentication.getName();
-        SseEmitter response = chatgptService.getGpt(
+        SseEmitter response = chatgptService.useGpt(
                 memberId,
                 chat_room_id,
                 request.getPrompt(),

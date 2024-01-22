@@ -1,5 +1,6 @@
-package com.example.Ahi.dto.requestDto;
+package com.example.Ahi.dto.gptDto;
 
+import com.example.Ahi.dto.requestDto.Message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
