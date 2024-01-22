@@ -1,7 +1,6 @@
 package com.example.Ahi.config;
 
-import com.example.Ahi.dto.requestDto.ChatgptRequest;
-import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
+import com.example.Ahi.dto.gptDto.ChatgptRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
