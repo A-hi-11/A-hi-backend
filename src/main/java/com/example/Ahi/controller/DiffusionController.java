@@ -21,7 +21,7 @@ public class DiffusionController {
 
     @PostMapping("/diffusion")
     public ResponseEntity<ModelResponseDto> getDiffusion(Authentication authentication,
-                                                         @RequestBody ModelRequestDto modelRequestDto) {
+                                                         @RequestBody ModelRequestDto modelRequestDto){
         String memberId = authentication.getName();
         modelRequestDto.setMember_id(memberId);
         return ResponseEntity.ok(diffusionService.getDiffusion(modelRequestDto));
