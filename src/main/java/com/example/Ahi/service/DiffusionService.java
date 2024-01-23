@@ -15,10 +15,7 @@ import com.example.Ahi.repository.PromptRepository;
 import io.jsonwebtoken.lang.Assert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,7 +35,7 @@ public class DiffusionService {
     private final PromptRepository promptRepository;
     private final ChatRepository chatRepository;
 
-    public ModelResponseDto getDiffusion(ModelRequestDto modelRequestDto) {
+    public ModelResponseDto getDiffusion(ModelRequestDto modelRequestDto){
         modelRequestDto.validate();
         Member member = memberRepository.findById(modelRequestDto.getMember_id()).orElse(null);
         // 잘못된 멤버 아이디의 경우 에러 처리
@@ -53,7 +50,7 @@ public class DiffusionService {
         chatRepository.save(chat_question);
 
         // 대답을 채팅에 저장
-        String imgUrl = getImage(question);
+        String imgUrl = getImage(question, modelRequestDto.getNegative());
         Text chat_answer = makeChat(false, imgUrl, chat_room);
         chatRepository.save(chat_answer);
 
@@ -81,7 +78,7 @@ public class DiffusionService {
         chatRepository.save(chat_question);
 
         // 대답을 채팅에 저장
-        String imgUrl = getImage(question);
+        String imgUrl = getImage(question, modelRequestDto.getNegative());
         Text chat_answer = makeChat(false, imgUrl, chat_room);
         chatRepository.save(chat_answer);
 
@@ -92,7 +89,7 @@ public class DiffusionService {
 
         return modelResponseDto;
     }
-    private String getImage(String prompt){
+    private String getImage(String prompt, String negative){
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2";
 
@@ -106,13 +103,14 @@ public class DiffusionService {
         String argument = ",realistic,best,4k";
 
         Map<String, String> body = new HashMap<>();
-        body.put("inputs", prompt + argument);
+        body.put("inputs", prompt);
+        body.put("negative_prompt", negative);
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
-
         // POST 요청 보내기
         ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.POST, entity, byte[].class);
         return s3Service.uploadDiffusionImage(response.getBody());
     }
+
     private ChatRoom findOrCreateChatRoom(ModelRequestDto modelRequestDto, Prompt prompt) {
         ChatRoom chatRoom = chatRoomRepository.findById(modelRequestDto.getChat_room_id()).orElse(null);
         if (chatRoom == null) {
