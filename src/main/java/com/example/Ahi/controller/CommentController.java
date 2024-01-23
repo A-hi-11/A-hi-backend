@@ -38,7 +38,7 @@ public class CommentController {
     }
 
     @GetMapping("/read/{prompt_id}")
-    public ResponseEntity read_comment(Authentication authentication,
+    public ResponseEntity<List<CommentListResponse>> read_comment(Authentication authentication,
                                        @PathVariable("prompt_id")Long prompt_id){
 
         String memberId = authentication.getName();
@@ -47,7 +47,7 @@ public class CommentController {
     }
 
     @PutMapping("/update/{comment_id}")
-    public ResponseEntity update_comment(Authentication authentication,
+    public ResponseEntity<CommentResponse> update_comment(Authentication authentication,
                                          @PathVariable("comment_id")Long id,
                                          @RequestBody CommentRequest request){
 
