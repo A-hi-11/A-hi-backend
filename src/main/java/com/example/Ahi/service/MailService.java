@@ -10,18 +10,15 @@ import org.springframework.stereotype.Service;
 public class MailService {
     private final RedisUtil redisUtil;
 
-    public boolean codeCheck(String member_id, int code) {
-        boolean result = false;
+    public boolean codeCheck(String memberId, int code) {
+        boolean result;
         //이메일주소로 코드 찾아 비교
-        String givenCode = redisUtil.getData(member_id);
-        if (givenCode==null || givenCode.isEmpty()){
+        String givenCode = redisUtil.getData(memberId);
+        if (givenCode==null || givenCode.isEmpty()
+                || !givenCode.equals(String.valueOf(code))){
             return false;
         }
-        if (givenCode.equals(String.valueOf(code))){
-            result=true;
-            redisUtil.deleteData(member_id);
-        }
-
-        return result;
+        redisUtil.deleteData(memberId);
+        return true;
     }
 }

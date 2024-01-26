@@ -49,6 +49,7 @@ public class AuthenticationConfig {
                                 .requestMatchers("/naver/redirect","/google/redirect","/user/signin","/user/signup","/user/mail","/google-login","/user/mail/check","/naver-login","/oauth2/**").permitAll()
                                 .requestMatchers("/prompt/view","/prompt/view/info").permitAll()
                                 .requestMatchers("/prompt/comment/read").permitAll()
+                                .requestMatchers("/gpt/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling

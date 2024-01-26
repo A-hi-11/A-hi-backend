@@ -2,32 +2,31 @@ package com.example.Ahi.service;
 
 import com.example.Ahi.config.ChatgptConfig;
 import com.example.Ahi.domain.*;
-import com.example.Ahi.dto.requestDto.ChatgptRequestDto;
+import com.example.Ahi.dto.gptDto.ChatgptRequestDto;
 import com.example.Ahi.dto.requestDto.Message;
-import com.example.Ahi.dto.responseDto.ChatgptResponseDto;
+import com.example.Ahi.dto.gptDto.ChatStreamResponseDto;
 import com.example.Ahi.entity.GptConfigInfo;
+import com.example.Ahi.exception.AhiException;
+import com.example.Ahi.exception.ErrorCode;
 import com.example.Ahi.repository.ChatRoomRepository;
 import com.example.Ahi.repository.ConfigInfoRepository;
-import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PromptRepository;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingRegistry;
 import com.knuddels.jtokkit.api.ModelType;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.json.JSONParser;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import com.example.Ahi.dto.requestDto.ChatgptRequest;
-import com.example.Ahi.dto.responseDto.ChatgptResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -41,112 +40,164 @@ public class ChatgptService {
     private final ChatRoomRepository chatRoomRepository;
     @Autowired
     ChatgptConfig config;
-
     @Value("${gpt-key}")
     private String key;
+    private static int MAXTOKEN = 4000;
+    private static final Long DEFAULT_TIMEOUT = 120L * 1000 * 60;
     private final String url = "https://api.openai.com/v1/chat/completions";
 
 
-    public ChatgptResponse getGpt(String memberId,Long chatroom_id, String request, GptConfigInfo gptConfigInfo){
-        ChatgptResponse response = new ChatgptResponse();
-        ChatgptRequestDto requestDto = new ChatgptRequestDto();
-
-        String model_type = gptConfigInfo.getModel_name();
+    public SseEmitter useGpt(String memberId,Long chatroomId, String request, GptConfigInfo gptConfigInfo){
+        String modelType = gptConfigInfo.getModel_name();
+        StringBuffer sb = new StringBuffer();
+        SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
 
         // 채팅방 찾기(없으면 생성)
-        Long chat_room_id = chatRoomService.find_chatroom(memberId,model_type,chatroom_id);
+        Long chatRoomId = chatRoomService.find_chatroom(memberId,modelType,chatroomId);
+
         //요청 메세지
-        requestDto.setMessages(compositeMessage(request,chat_room_id));
-
-        requestDto.setModel(gptConfigInfo.getModel_name());
-        requestDto.setTemperature((double) gptConfigInfo.getTemperature());
-        requestDto.setMaxTokens(gptConfigInfo.getMaximum_length().intValue());
-        requestDto.setStop_sequences(gptConfigInfo.getStop_sequence());
-        requestDto.setTopP((double) gptConfigInfo.getTop_p());
-        requestDto.setFrequency_penalty((double) gptConfigInfo.getFrequency_penalty());
-        requestDto.setPresence_penalty((double) gptConfigInfo.getPresence_penalty());
-
-        HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<ChatgptResponseDto> responseEntity = restTemplate.postForEntity(
-                url,
-                requestEntity,
-                ChatgptResponseDto.class);
-
-        //response 파싱
-        ChatgptResponseDto result = responseEntity.getBody();
-        String answer = result.getChoices().get(0).getMessage().getContent();
-
-        response.setAnswer(answer);
-        response.setChat_room_id(chat_room_id);
+        ChatgptRequestDto requestDto = ChatgptRequestDto.builder()
+                .messages(compositeMessage(request,chatRoomId))
+                .model(gptConfigInfo.getModel_name())
+                .temperature(gptConfigInfo.getTemperature())
+                .maxTokens(gptConfigInfo.getMaximum_length())
+                .stop_sequences(gptConfigInfo.getStop_sequence())
+                .topP(gptConfigInfo.getTop_p())
+                .frequency_penalty(gptConfigInfo.getFrequency_penalty())
+                .presence_penalty(gptConfigInfo.getPresence_penalty())
+                .stream(true)
+                .build();
 
 
-        //채팅내역 저장
-        //사용자 발화
-        chatService.save_chat(chat_room_id,true,request);
-        //gpt 발화
-        chatService.save_chat(chat_room_id,false,response.getAnswer());
+        WebClient.create()
+                .post().uri(url)
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + key)
+                .body(BodyInserters.fromValue(requestDto))
+                .exchangeToFlux(response -> response.bodyToFlux(String.class))
+                .doOnNext(data -> {
+                    try {
+                        if (data.equals("[DONE]")) {
+                            sseEmitter.send("chat_room_id: "+chatRoomId );
+                            chatService.save_chat(chatRoomId,false,sb.toString());
+                            chatService.save_chat(chatRoomId,true,request);
+                            sseEmitter.complete();
+                        }
+                        else{
+                            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+                            ChatStreamResponseDto streamDto = mapper.readValue(data,ChatStreamResponseDto.class);
+                            ChatStreamResponseDto.Choice.Delta delta = streamDto.getChoices().get(0).getDelta();
+
+                            if (delta!=null && delta.getContent()!=null){
+                                sb.append(delta.getContent());
+                                sseEmitter.send(delta.getContent());
+                            }
+                        }
+                    } catch (IOException e) {
+                        throw new AhiException(ErrorCode.FAIL_TO_SEND);
+                    }
+                })
+                .doOnComplete(sseEmitter::complete)
+                .doOnError(sseEmitter::completeWithError)
+                .subscribe();
 
 
-        return response;
+        return sseEmitter;
     }
 
 
 
-    public ChatgptResponse useGpt(String memberId,Long prompt_id, ChatgptRequest request){
-        //1. prompt찾아 "user" role로 세팅하기
-        //2. 대화내역 찾아 추가하기 -> 없다면 새로운 채팅방으로 만들어 줘야함
-        //3. 전송하기
-        //4. 대화내역 저장하기
-        ChatgptResponse response = new ChatgptResponse();
-        ChatgptRequestDto requestDto = new ChatgptRequestDto();
+    public SseEmitter useGptwithPrompt(String memberId, Long promptId, ChatgptRequest request){
+        SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
+        StringBuffer sb = new StringBuffer();
+
+        Optional<Prompt> prompt = promptRepository.findById(promptId);
+        if(prompt.isEmpty())
+            throw new AhiException(ErrorCode.PROMPT_NOT_FOUND);
+
+        Optional<ConfigInfo> configInfo = configInfoRepository.findByPromptId(prompt.get());
+        if(configInfo.isEmpty())
+            throw new AhiException(ErrorCode.INVALID_INPUT);
+
+        Long chatRoomId = chatRoomService.find_promptroom(memberId,prompt.get(),configInfo.get().getModelName());
+
+        ConfigInfo config = configInfo.get();
+
+        ChatgptRequestDto requestDto = ChatgptRequestDto.builder()
+                .messages(compositeMessage(request.getPrompt(),chatRoomId))
+                .model(config.getModelName())
+                .temperature(config.getTemperature())
+                .maxTokens(config.getMaximumLength())
+                .stop_sequences(config.getStopSequence())
+                .topP(config.getTopP())
+                .frequency_penalty(config.getFrequencyPenalty())
+                .presence_penalty(config.getPresencePenalty())
+                .stream(true)
+                .build();
+        System.out.println(requestDto);
+
+        WebClient.create()
+                .post().uri(url)
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + key)
+                .body(BodyInserters.fromValue(requestDto))
+                .exchangeToFlux(response -> response.bodyToFlux(String.class))
+                .doOnNext(data -> {
+                    try {
+                        if (data.equals("[DONE]")) {
+                            sseEmitter.send("chat_room_id: "+chatRoomId );
+                            chatService.save_chat(chatRoomId,false,sb.toString());
+                            chatService.save_chat(chatRoomId,true,request.getPrompt());
+                            sseEmitter.complete();
+                        }
+                        else{
+                            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+                            ChatStreamResponseDto streamDto = mapper.readValue(data,ChatStreamResponseDto.class);
+                            ChatStreamResponseDto.Choice.Delta delta = streamDto.getChoices().get(0).getDelta();
 
 
-        Long chat_room_id = chatRoomService.find_promptroom(memberId,prompt_id);
-        Optional<ConfigInfo> configInfo = configInfoRepository.findByPromptId(prompt_id);
-        if(configInfo.isPresent()){
-            ConfigInfo config = configInfo.get();
-            requestDto.setModel(config.getModel_name());
-            requestDto.setTemperature((double) config.getTemperature());
-            requestDto.setMaxTokens(config.getMaximum_length().intValue());
-            requestDto.setStop_sequences(config.getStop_sequence());
-            requestDto.setTopP((double) config.getTop_p());
-            requestDto.setFrequency_penalty((double) config.getFrequency_penalty());
-            requestDto.setPresence_penalty((double) config.getPresence_penalty());
+                            if (delta!=null && delta.getContent()!=null){
+                                sb.append(delta.getContent());
+                                sseEmitter.send(delta.getContent());
+                            }
+                        }
+                    } catch (IOException e) {
+                        throw new AhiException(ErrorCode.FAIL_TO_SEND);
+                    }
+                })
+                .doOnComplete(sseEmitter::complete)
+                .doOnError(sseEmitter::completeWithError)
+                .subscribe();
+
+
+        return sseEmitter;
+    }
+
+
+
+
+
+    public List<Message> compositeMessage(String input,Long chatRoomId){
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chatRoomId);
+        List<Message> messages = new ArrayList<>();
+
+        if(chatRoom.isPresent() && chatRoom.get().getPromptId()!=null){
+            Message message = setPrompt(chatRoom.get().getPromptId().getPrompt_id());
+            messages.add(message);
         }
-        List<Message> messages = compositeMessage(request.getPrompt(),chat_room_id);
-        //messages.add(0,setPrompt(prompt_id));
-        requestDto.setMessages(messages);
 
-        HttpEntity<ChatgptRequestDto> requestEntity = compositeRequest(requestDto);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<ChatgptResponseDto> responseEntity = restTemplate.postForEntity(
-                url,
-                requestEntity,
-                ChatgptResponseDto.class);
+        messages.addAll(chatService.memorizedChat(chatRoom.get()));
+        messages.add(new Message("user", input));
 
-        //response 파싱
-        ChatgptResponseDto result = responseEntity.getBody();
-        String answer = result.getChoices().get(0).getMessage().getContent();
+        while (getTokenSize(messages.toString())>MAXTOKEN)
+            messages.remove(1);
 
-        response.setAnswer(answer);
-        response.setChat_room_id(chat_room_id);
-
-        //채팅내역 저장
-        //사용자 발화
-        chatService.save_chat(chat_room_id,true,request.getPrompt());
-        //gpt 발화
-        chatService.save_chat(chat_room_id,false,response.getAnswer());
-
-
-        return response;
-
-
+        return messages;
     }
 
-    public Message setPrompt(Long prompt_id){
+    public Message setPrompt(Long promptId){
         Message message = new Message();
-        Optional<Prompt> prompt = promptRepository.findById(prompt_id);
+        Optional<Prompt> prompt = promptRepository.findById(promptId);
 
         if(prompt.isPresent()){
             message.setRole("user");
@@ -154,44 +205,6 @@ public class ChatgptService {
         }
 
         return message;
-    }
-
-
-
-
-
-
-    public HttpEntity<ChatgptRequestDto> compositeRequest(ChatgptRequestDto requestDto){
-        HttpHeaders headers = config.gptHeader();
-        //TODO: config클래스에 분리하기
-        //ChatgptRequestDto body = config.gptBody();
-
-        //requestDto.setModel("gpt-3.5-turbo");
-
-        return new HttpEntity<>(requestDto, headers);
-    }
-
-
-
-    public List<Message> compositeMessage(String input,Long chat_room_id){
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chat_room_id);
-
-        List<Message> messages = chatService.memorizedChat(chatRoom.get());
-
-        //프롬프트를 이용하였다면 메세지에 포함시킴
-        if(chatRoom.isPresent() && chatRoom.get().getPromptId()!=null){
-            Message message = setPrompt(chatRoom.get().getPromptId().getPrompt_id());
-            messages.add(0,message);
-        }
-
-        messages.add(new Message("user", input));
-
-        System.out.println(messages);
-
-        while (getTokenSize(messages.toString())>4000){
-            messages.remove(1);
-        }
-        return messages;
     }
 
     public int getTokenSize(String text) {

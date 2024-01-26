@@ -16,16 +16,16 @@ import org.hibernate.annotations.OnDeleteAction;
 public class ConfigInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Config_info_id;
+    private Long ConfigInfoId;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="prompt_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Prompt promptId;
-    private String model_name;
-    private float temperature;
-    private Long maximum_length;
-    private String stop_sequence;
-    private float top_p;
-    private float frequency_penalty;
-    private float presence_penalty;
+    private String modelName;
+    private double temperature;
+    private int maximumLength;
+    private String stopSequence;
+    private double topP;
+    private double frequencyPenalty;
+    private double presencePenalty;
 }

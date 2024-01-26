@@ -12,29 +12,34 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
 public class ChatgptController {
-
-    @Autowired
     private final ChatgptService chatgptService;
 
-    @PostMapping("/gpt/{chat_room_id}")
-    public ChatgptResponse getGpt(Authentication authentication,
-                                  @PathVariable("chat_room_id") Long chat_room_id,
-                                  @RequestBody ChatgptRequest request){
+    @PostMapping(value = "/gpt/{chat_room_id}" ,produces = "text/event-stream")
+    public ResponseEntity<SseEmitter> getGpt(Authentication authentication,
+                                             @PathVariable("chat_room_id") Long chat_room_id,
+                                             @RequestBody ChatgptRequest request){
+
         String memberId = authentication.getName();
-        return chatgptService.getGpt(memberId,chat_room_id,request.getPrompt(), request.getGptConfigInfo());
+        SseEmitter response = chatgptService.useGpt(
+                memberId,
+                chat_room_id,
+                request.getPrompt(),
+                request.getGptConfigInfo());
+        return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/gpt/use/{prompt_id}")
-    public ResponseEntity useGpt(Authentication authentication,
+    @PostMapping(value = "/gpt/use/{prompt_id}" ,produces = "text/event-stream")
+    public ResponseEntity<SseEmitter> useGptwithPrompt(Authentication authentication,
                                  @PathVariable("prompt_id")Long prompt_id,
                                  @RequestBody ChatgptRequest request){
 
         String memberId = authentication.getName();
-        ChatgptResponse response = chatgptService.useGpt(memberId,prompt_id,request);
+        SseEmitter response = chatgptService.useGptwithPrompt(memberId,prompt_id,request);
         return ResponseEntity.ok().body(response);
     }
 }
