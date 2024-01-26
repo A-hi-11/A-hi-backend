@@ -1,7 +1,7 @@
 package com.example.Ahi.controller;
 
 import com.example.Ahi.service.OAuthService.GoogleService;
-import com.example.Ahi.service.OAuthService.KakaoService;
+//import com.example.Ahi.service.OAuthService.KakaoService;
 import com.example.Ahi.service.OAuthService.NaverSerivce;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +21,7 @@ public class OauthController {
 
     private final GoogleService googleService;
     private final NaverSerivce naverSerivce;
-    private final KakaoService kakaoService;
+//    private final KakaoService kakaoService;
 
 
     @GetMapping( "/google-login")
@@ -50,12 +50,12 @@ public class OauthController {
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
-    @GetMapping("/kakao/redirect")
-    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) {
-
-        String response = kakaoService.kakaoLogin(code);
-//        HttpHeaders header = new HttpHeaders();
-//        header.set("Authorization", response);
-        return ResponseEntity.ok("카카오 로그인+회원가입 성공 : " + response);
-    }
+//    @GetMapping("/kakao/redirect")
+//    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) {
+//
+//        String response = kakaoService.kakaoLogin(code);
+////        HttpHeaders header = new HttpHeaders();
+////        header.set("Authorization", response);
+//        return ResponseEntity.ok("카카오 로그인+회원가입 성공 : " + response);
+//    }
 }

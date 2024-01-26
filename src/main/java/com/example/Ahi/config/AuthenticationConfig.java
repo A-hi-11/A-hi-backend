@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class AuthenticationConfig {
 
     private final MemberService memberService;
+    private final DefaultOAuth2UserService oAuth2UserService;
 
     @Value("${jwt-secret-key}")
     private String secretKey;
@@ -44,23 +46,25 @@ public class AuthenticationConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 //TODO: 배포 후 설정
-                                .requestMatchers("/naver/redirect","/google/redirect","/user/signin","/user/signup","/user/mail","/google-login","/user/mail/check","/naver-login").permitAll()
+                                .requestMatchers("/naver/redirect","/google/redirect","/user/signin","/user/signup","/user/mail","/google-login","/user/mail/check","/naver-login","/oauth2/**").permitAll()
                                 .requestMatchers("/prompt/view","/prompt/view/info").permitAll()
                                 .requestMatchers("/prompt/comment/read").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+//              .exceptionHandling(exceptionHandling -> exceptionHandeling.authenticationEntryPoint(new FailedAuthenticationEntryPoint())
 
                 .addFilterBefore(new JwtFilter(memberService,secretKey), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
-                        .redirectionEndpoint(redirection-> redirection
-                                .baseUri(gRedirectUrl)
-                                .baseUri(nRedirectUrl)
-                        )
+                                .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
+                                .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
+//                        .redirectionEndpoint(redirection-> redirection
+//                                .baseUri(gRedirectUrl)
+//                                .baseUri(nRedirectUrl)
+
+//                        )
                 );
-
-
         return httpSecurity.build();
     }
 
