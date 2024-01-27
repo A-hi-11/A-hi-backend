@@ -48,6 +48,7 @@ public class AuthenticationConfig {
                                 .requestMatchers("/prompt/view","/prompt/view/info").permitAll()
                                 .requestMatchers("/prompt/comment/read").permitAll()
                                 .requestMatchers("/gpt/**").permitAll()
+                                .requestMatchers("/confirm").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
