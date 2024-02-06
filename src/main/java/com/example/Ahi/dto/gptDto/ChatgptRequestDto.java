@@ -17,18 +17,18 @@ import java.util.Map;
 @Builder
 public class ChatgptRequestDto implements Serializable {
     private List<Message> messages;
-    private String model = "gpt-3.5-turbo";
-    private Double temperature=1.0;
+    private String model;
+    private Double temperature;
     @JsonProperty("max_tokens")
-    private Integer maxTokens=100;
+    private Integer maxTokens;
     @JsonProperty("stop")
-    private String stop_sequences="\n";
+    private String stop_sequences;
     @JsonProperty("top_p")
-    private Double topP=1.0;
+    private Double topP;
     @JsonProperty("frequency_penalty")
-    private Double frequency_penalty=0.0;
+    private Double frequency_penalty;
     @JsonProperty("presence_penalty")
-    private Double presence_penalty=0.0;
+    private Double presence_penalty;
     @JsonProperty("stream")
-    private boolean stream = true;
+    private boolean stream ;
 }
