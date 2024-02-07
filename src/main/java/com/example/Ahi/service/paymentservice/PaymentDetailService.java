@@ -2,9 +2,10 @@ package com.example.Ahi.service.paymentservice;
 
 import com.example.Ahi.domain.Payment;
 import com.example.Ahi.dto.paymentDto.PaymentListDto;
-import com.example.Ahi.dto.responseDto.PromptListResponseDto;
-import com.example.Ahi.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,19 +22,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentDetailService {
     private final PaymentUtils paymentUtils;
-    public void getPaymentDetails(String orderId, String memberId) throws UnsupportedEncodingException {
+    public ResponseEntity<JSONObject> getPaymentDetails(String orderId, String memberId) throws UnsupportedEncodingException, ParseException {
         Payment payment = paymentUtils.getPayment(orderId);
         paymentUtils.verifyMember(payment.getMemberId().getMemberId(), memberId);
-        fetchAndPrintPaymentInfo(payment);
+        return fetchAndReturnPaymentInfo(payment);
+
     }
-    public List<PaymentListDto> getPaymentList(String memberId){
+    public ResponseEntity<List<PaymentListDto>> getPaymentList(String memberId){
         List<PaymentListDto> resultList = new ArrayList<>();
         for(Payment payment: paymentUtils.getPaymentList(memberId)){
             resultList.add(payment.toPaymentListDto());
+
         }
-        return resultList;
+        return ResponseEntity.ok(resultList);
     }
-    private void fetchAndPrintPaymentInfo(Payment payment) throws UnsupportedEncodingException {
+    private ResponseEntity<JSONObject> fetchAndReturnPaymentInfo(Payment payment) throws UnsupportedEncodingException, ParseException {
         String paymentKey = payment.getPaymentKey();
         String url = generateUrl(paymentKey);
         String auth = paymentUtils.generateAuthorization();
@@ -42,8 +46,16 @@ public class PaymentDetailService {
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        String utf8Body = new String(response.getBody().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        //2. Parser
+        JSONParser jsonParser = new JSONParser();
 
-        printResponse(response);
+        //3. To Object
+        Object obj = jsonParser.parse(utf8Body);
+
+        //4. To JsonObject
+        JSONObject jsonObj = (JSONObject) obj;
+        return ResponseEntity.ok(jsonObj);
     }
 
     private String generateUrl(String paymentKey) {
@@ -54,9 +66,5 @@ public class PaymentDetailService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", auth);
         return headers;
-    }
-
-    private void printResponse(ResponseEntity<String> response) {
-        System.out.println("Response: " + response);
     }
 }

@@ -14,7 +14,7 @@ public class PaymentSaveService {
     public String savePayment(PaymentSaveRequestDto request, String memberId){
         Member member = paymentUtils.getMember(memberId);
         paymentRepository.save(request.toPayment(member));
-        return "save successfully!";
+        return request.getOrderId();
     }
 
 }

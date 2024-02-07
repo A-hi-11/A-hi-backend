@@ -1,15 +1,13 @@
 package com.example.Ahi.controller;
 
-import com.example.Ahi.dto.paymentDto.PaymentCancelDto;
-import com.example.Ahi.dto.paymentDto.PaymentConfirmRequestDto;
-import com.example.Ahi.dto.paymentDto.PaymentListDto;
-import com.example.Ahi.dto.paymentDto.PaymentSaveRequestDto;
+import com.example.Ahi.dto.paymentDto.*;
 import com.example.Ahi.service.paymentservice.PaymentCancelService;
 import com.example.Ahi.service.paymentservice.PaymentConfirmService;
 import com.example.Ahi.service.paymentservice.PaymentDetailService;
 import com.example.Ahi.service.paymentservice.PaymentSaveService;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -35,8 +33,8 @@ public class PaymentController {
     }
 
     @PostMapping( "/confirm")
-    public ResponseEntity<JSONObject> confirmPayment(Authentication authentication,
-                                                     @RequestBody PaymentConfirmRequestDto request) throws Exception {
+    public ResponseEntity<Object> confirmPayment(Authentication authentication,
+                                                         @RequestBody PaymentConfirmRequestDto request) throws Exception {
         String memberId = authentication.getName();
         return paymentConfirmService.confirmPayment(request, memberId);
     }
@@ -47,14 +45,14 @@ public class PaymentController {
         return paymentCancelService.cancelPayment(request, memberId);
     }
     @GetMapping("/list")
-    public List<PaymentListDto> getPaymentList(Authentication authentication){
+    public ResponseEntity<List<PaymentListDto>> getPaymentList(Authentication authentication){
         String memberId = authentication.getName();
         return paymentDetailService.getPaymentList(memberId);
     }
 
     @GetMapping("/list/{orderId}")
-    public void getPaymentDetails(Authentication authentication, @PathVariable String orderId) throws UnsupportedEncodingException {
+    public ResponseEntity<JSONObject> getPaymentDetails(Authentication authentication, @PathVariable String orderId) throws UnsupportedEncodingException, ParseException {
         String memberId = authentication.getName();
-        paymentDetailService.getPaymentDetails(orderId, memberId);
+        return paymentDetailService.getPaymentDetails(orderId, memberId);
     }
 }

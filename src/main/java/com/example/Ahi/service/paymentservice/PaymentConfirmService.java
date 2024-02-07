@@ -33,7 +33,7 @@ public class PaymentConfirmService {
     private static final String CONTENT_TYPE = "application/json";
     private final PaymentUtils paymentUtils;
     private final PaymentRepository paymentRepository;
-    public ResponseEntity<JSONObject> confirmPayment(PaymentConfirmRequestDto requestDto, String memberId) throws Exception {
+    public ResponseEntity<Object> confirmPayment(PaymentConfirmRequestDto requestDto, String memberId) throws Exception {
         // 검증 로직
         Payment payment = paymentUtils.getPayment(requestDto.getOrderId());
         paymentUtils.verifyMember(payment.getMemberId().getMemberId(), memberId);
@@ -44,9 +44,8 @@ public class PaymentConfirmService {
         String authorizations = paymentUtils.generateAuthorization();
         JSONObject requestData = parseJson(requestDto);
         JSONObject response = sendPaymentRequest(requestData, authorizations);
-        // todo: payment 객체의 상태 값을 보고 이후 행동 결졍
-        System.out.println(response);
-        return ResponseEntity.status(200).body(response);
+
+        return ResponseEntity.ok(checkStatus(payment, response));
     }
 
     private JSONObject parseJson(PaymentConfirmRequestDto request) throws ParseException, JsonProcessingException {
@@ -102,5 +101,15 @@ public class PaymentConfirmService {
 
         responseStream.close();
         return jsonObject;
+    }
+
+    private Object checkStatus(Payment payment, JSONObject response){
+        Object result = response.get("status");
+        if(result == null){
+            return response;
+        }
+        payment.setStatus(PaymentStatus.DONE.getStatus());
+        paymentRepository.save(payment);
+        return result;
     }
 }

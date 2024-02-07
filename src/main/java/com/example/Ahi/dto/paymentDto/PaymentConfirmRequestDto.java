@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 public class PaymentConfirmRequestDto {
-    String orderId;
-    String PaymentKey;
-    Long amount;
+    private String orderId;
+    private String paymentKey;
+    private Long amount;
 
 }
