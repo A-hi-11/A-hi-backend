@@ -47,4 +47,6 @@ src/main/resources/application-redis.properties
 src/main/resources/application-naver.properties
 src/main/resources/application-kakao.properties
 src/main/resources/application-toss.properties
+src/main/resources/application-mysql.properties
+
 
