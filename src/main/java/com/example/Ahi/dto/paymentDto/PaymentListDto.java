@@ -11,4 +11,5 @@ public class PaymentListDto {
     private String paymentKey;
     private String memberId;
     private String status;
+    private String orderName;
 }

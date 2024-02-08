@@ -47,13 +47,9 @@ public class PaymentDetailService {
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         String utf8Body = new String(response.getBody().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        //2. Parser
+
         JSONParser jsonParser = new JSONParser();
-
-        //3. To Object
         Object obj = jsonParser.parse(utf8Body);
-
-        //4. To JsonObject
         JSONObject jsonObj = (JSONObject) obj;
         return ResponseEntity.ok(jsonObj);
     }

@@ -11,18 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Objects;
 
 @Service
@@ -38,14 +34,14 @@ public class PaymentConfirmService {
         Payment payment = paymentUtils.getPayment(requestDto.getOrderId());
         paymentUtils.verifyMember(payment.getMemberId().getMemberId(), memberId);
         verifyRequest(payment.getAmount(), requestDto.getAmount());
-        updatePayment(payment, requestDto.getPaymentKey());
+        setPaymentKey(payment, requestDto.getPaymentKey());
 
         // 승인 로직
         String authorizations = paymentUtils.generateAuthorization();
         JSONObject requestData = parseJson(requestDto);
         JSONObject response = sendPaymentRequest(requestData, authorizations);
 
-        return ResponseEntity.ok(checkStatus(payment, response));
+        return ResponseEntity.ok(paymentUtils.checkStatus(payment, response));
     }
 
     private JSONObject parseJson(PaymentConfirmRequestDto request) throws ParseException, JsonProcessingException {
@@ -62,7 +58,7 @@ public class PaymentConfirmService {
         }
     }
 
-    private void updatePayment(Payment payment, String paymentKey){
+    private void setPaymentKey(Payment payment, String paymentKey){
         payment.setPaymentKey(paymentKey);
         paymentRepository.save(payment);
     }
@@ -103,13 +99,5 @@ public class PaymentConfirmService {
         return jsonObject;
     }
 
-    private Object checkStatus(Payment payment, JSONObject response){
-        Object result = response.get("status");
-        if(result == null){
-            return response;
-        }
-        payment.setStatus(PaymentStatus.DONE.getStatus());
-        paymentRepository.save(payment);
-        return result;
-    }
+
 }

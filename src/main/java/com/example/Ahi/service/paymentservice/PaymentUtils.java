@@ -7,6 +7,7 @@ import com.example.Ahi.exception.ErrorCode;
 import com.example.Ahi.repository.MemberRepository;
 import com.example.Ahi.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -50,4 +51,21 @@ public class PaymentUtils {
     public List<Payment> getPaymentList(String memberId){
         return paymentRepository.findByMemberId(getMember(memberId));
     }
+
+    public Object checkStatus(Payment payment, JSONObject response){
+        Object result = response.get("status");
+        Object name = response.get("orderName");
+        if(result == null){
+            return response;
+        }
+
+        updatePaymentStatusAndName(payment, result.toString(), name.toString());
+        return result;
+    }
+    public void updatePaymentStatusAndName(Payment payment, String status, String name){
+        payment.setStatus(status);
+        payment.setOrderName(name);
+        paymentRepository.save(payment);
+    }
+
 }

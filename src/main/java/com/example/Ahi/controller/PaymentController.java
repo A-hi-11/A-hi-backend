@@ -39,8 +39,8 @@ public class PaymentController {
         return paymentConfirmService.confirmPayment(request, memberId);
     }
     @PostMapping("/cancel")
-    public ResponseEntity<String> cancelPayment(Authentication authentication,
-                                                @RequestBody PaymentCancelDto request) throws UnsupportedEncodingException {
+    public ResponseEntity<Object> cancelPayment(Authentication authentication,
+                                                @RequestBody PaymentCancelDto request) throws UnsupportedEncodingException, ParseException {
         String memberId = authentication.getName();
         return paymentCancelService.cancelPayment(request, memberId);
     }

@@ -19,6 +19,7 @@ public class Payment {
     @Id
     private String orderId;
     private Long amount;
+    private String orderName;
     private String paymentKey;
     @ManyToOne
     @JoinColumn(name="member_id")
@@ -31,6 +32,7 @@ public class Payment {
                 .memberId(memberId.getMemberId())
                 .orderId(orderId)
                 .paymentKey(paymentKey)
+                .orderName(orderName)
                 .status(status)
                 .build();
     }

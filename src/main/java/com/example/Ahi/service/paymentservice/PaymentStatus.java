@@ -6,12 +6,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PaymentStatus {
-    READY("준비"),
-    IN_PROGRESS("승인 대기"),
-    DONE("승인"),
-    CANCELED("취소"),
-    ABORTED("실패"),
-    EXPIRED("만료");
+    READY("READY"),
+    IN_PROGRESS("IN_PROGRESS"),
+    DONE("DONE"),
+    CANCELED("CANCELED"),
+    ABORTED("ABORTED"),
+    EXPIRED("EXPIRED");
 
 
     /*
