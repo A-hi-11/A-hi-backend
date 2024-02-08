@@ -17,7 +17,9 @@ public enum ErrorCode {
     INVALID_PASSWORD(403, HttpStatus.FORBIDDEN,"잘못된 비밀번호입니다."),
     SAME_PASSWORD(409,HttpStatus.CONFLICT, "기존 비밀번호와 입력 비밀번호가 같습니다."),
     DUPLICATED_NICKNAME(409,HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
-    INVALID_INPUT(400, HttpStatus.BAD_REQUEST,"잘못된 입력입니다.");
+    INVALID_INPUT(400, HttpStatus.BAD_REQUEST,"잘못된 입력입니다."),
+    ALREADY_CANCELED(400, HttpStatus.BAD_REQUEST,"이미 취소된 결제입니다.");
+
 
     private int status;
     private HttpStatus error;
